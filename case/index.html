@@ -216,6 +216,7 @@ tailwind.config = {
     <li><strong>Secondary exception:</strong> documentation error (packing list, customs declaration), detected by supporting systems.</li>
     <li><strong>Information fidelity check:</strong> each exception shows its source and when it was last confirmed; if sources disagree, the dashboard says so rather than picking one.</li>
     <li><strong>Layout:</strong> the three exceptions as columns, one card per shipment showing affected containers and age of the exception. Alternative worth testing: a per-shipment timeline swimlane, which handles a shipment carrying two exceptions better than columns do.</li>
+    <li><strong>Time left to act:</strong> every card carries one call to action, linked to the portal page that resolves it and coloured by time left before the action window closes: under 1h, 1h to 6h, 6h to 24h, over 24h (tiers assumed). Cards sort soonest deadline first, so a customs hold due in 45 minutes outranks a document error due in 3 days.</li>
     <li><strong>Everything else:</strong> a free-text summary field, capped at 150 words on screen with the full text kept in backend logs. Example: cargo ready date now later than the must-arrive-by date.</li>
     <li><strong>Suggested actions:</strong> for each primary or secondary exception, up to 3 options (count assumed) retrieved from the resolution playbook (RAG), each citing its source and linking to the portal page. If retrieval is not confident, no suggestion: the card routes to ops instead.</li>
   </ul>
@@ -274,9 +275,10 @@ tailwind.config = {
 <!-- 5 -->
 <section id="proto"><div class="wrap">
   <div class="sh"><span class="sn">05</span><h2>Prototype</h2></div>
-  <p><a class="btn pri" href="prototype.html" target="_blank" style="text-decoration:none">Open the prototype &rarr;</a></p>
+  <p class="flex flex-wrap gap-2"><a class="btn pri" href="prototype.html" target="_blank" style="text-decoration:none">Open the prototype &rarr;</a></p>
+  <p class="text-sm text-fg-2"><strong>What the review changed:</strong> exceptions are not equally urgent, so every card now shows time left to act as a colour-coded chip (under 1h, 1h to 6h, 6h to 24h, over 24h) with a separate action button to the portal page, sorted soonest first (R7, N4).</p>
   <ul>
-    <li><strong>1. Exceptions board (normal).</strong> Four columns, one card per shipment with affected containers, age, source and last confirmed; one shipment sits in two columns to show the grain trap; the detail panel shows 3 cited suggested actions with portal links (R1 to R3).</li>
+    <li><strong>1. Exceptions board (normal).</strong> Four columns, one card per shipment with affected containers, age, source and last confirmed; one shipment sits in two columns to show the grain trap; each card has a call to action coloured by time left (red under 1h to green over 24h, grey when ops owns it); the detail panel shows 3 cited suggested actions with portal links (R1 to R3, R7).</li>
     <li><strong>2. System abstains (uncertain).</strong> Broker says Hold, carrier says Released: the card is flagged unconfirmed on customs status, suggestions are withheld with the reason, and ops will advise (R4, R5).</li>
     <li><strong>3. Correction and audit (ops).</strong> Ops marks a suggestion wrong, records the action that actually resolved it, the audit trail adds it to the eval set, and the kill switch shows wrong rate per type against the 5% threshold (R6, N3).</li>
   </ul>
@@ -296,6 +298,7 @@ tailwind.config = {
       <tr><td class="mono">R4</td><td>When the top retrieval score is below the cutoff, or the exception type is "other", the system must show no suggestion and route the card to ops, saying which it is unsure of: the exception type or the action.</td><td>Out-of-corpus cases mixed into the eval set. Abstention fires on them; false abstentions on in-corpus cases reported separately.</td></tr>
       <tr><td class="mono">R5</td><td>When sources disagree on an exception's status, or the last confirmation is older than the freshness window, the system must flag the card unconfirmed and name the field in doubt.</td><td>Fixtures with conflicting broker and carrier events, and stale events. Flag appears and names the field.</td></tr>
       <tr><td class="mono">R6</td><td>When ops marks a suggestion wrong, the system must record the correct action, the annotator and the time, and add the case to the eval set for the next release.</td><td>Annotate a sample in staging; check the audit record and that the eval set grows by that count.</td></tr>
+      <tr><td class="mono">R7</td><td>When an exception has a known action deadline, the card must show time left as text and a call to action coloured by tier (under 1h, 1h to 6h, 6h to 24h, over 24h), sort soonest first within its column, and move tier without a page reload as the clock runs.</td><td>Fixture deadlines at 59m, 1h, 1h01m, 5h59m, 6h, 23h59m, 24h, 3d and unknown; advance a mocked clock and check tier, text and order at each boundary.</td></tr>
     </tbody>
   </table></div>
 
@@ -306,6 +309,7 @@ tailwind.config = {
       <tr><td class="mono">N1</td><td>Must not take any action in the portal. Suggestions are links only; the planner acts.</td><td>Revisited only when the ops-marked-correct rate holds above target for a full quarter, not on a date</td></tr>
       <tr><td class="mono">N2</td><td>Must not show a suggested action without a cited playbook passage.</td><td>Any uncited suggestion is a release blocker</td></tr>
       <tr><td class="mono">N3</td><td><strong>Must not degrade silently.</strong> If ops marks more than 5% of suggestions wrong for an exception type over a rolling 7 days (both assumed, set from baseline), suggestions for that type switch off, cards route to ops, and ops is alerted within 1 hour (assumed).</td><td>Rolling 7-day window, per exception type</td></tr>
+      <tr><td class="mono">N4</td><td>Must not show a calm tier when the deadline is unknown or its source is stale. Show "deadline unknown" in grey and route to ops.</td><td>Any card without a confirmed deadline source</td></tr>
     </tbody>
   </table></div>
 

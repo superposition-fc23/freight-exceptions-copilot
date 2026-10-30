@@ -186,16 +186,24 @@ table.grid th{font-size:11px}
 
   <!-- ===================== screen 1: normal ===================== -->
   <div class="screen on" id="s-board">
-    <p class="text-sm text-fg-2 mt-0 mb-3">Planner view. Four columns, one card per shipment per exception type (R1). The selected card shows up to 3 suggested actions, each with its cited playbook passage and a portal link (R3, N1, N2).</p>
+    <p class="text-sm text-fg-2 mt-0 mb-3">Planner view. Four columns, one card per shipment per exception type (R1). The selected card shows up to 3 suggested actions, each with its cited playbook passage and a portal link (R3, N1, N2). Every card carries a time-left chip coloured by tier and, separately, one action button to the portal page; cards sort soonest deadline first (R7).</p>
     <div class="mock">
       <div class="mock-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="mock-url">portal / exceptions</span></div>
       <div class="mock-top">
         <span class="brand">Exceptions <span class="font-mono text-xs text-fg-3 font-normal">&middot; your shipments, inbound</span></span>
-        <div class="right"><span class="pill new">7 open</span><span class="pill stop">1 unconfirmed</span><span class="hint">refreshed 2 min ago</span></div>
+        <div class="right"><span class="pill new">7 open</span><span class="pill stop">1 due in under 1h</span><span class="pill stop">1 unconfirmed</span><span class="hint">refreshed 2 min ago</span></div>
       </div>
-      <div class="mock-body" style="grid-template-columns:1fr 400px">
+      <div class="mock-body !grid-cols-1 xl:!grid-cols-[1fr_400px]">
         <div class="main p-3">
-          <div class="grid grid-cols-4 gap-3">
+          <div class="flex flex-wrap items-center gap-3 mb-3 text-xs text-fg-2">
+            <span class="font-mono uppercase tracking-wider text-fg-3">Time left to act</span>
+            <span class="px-2 py-0.5 rounded text-xs font-semibold font-mono whitespace-nowrap bg-stop text-surface">under 1h &middot; 1</span>
+            <span class="px-2 py-0.5 rounded text-xs font-semibold font-mono whitespace-nowrap bg-warn-soft text-warn border border-warn">1h to 6h &middot; 2</span>
+            <span class="px-2 py-0.5 rounded text-xs font-semibold font-mono whitespace-nowrap bg-accent-soft text-accent border border-accent">6h to 24h &middot; 1</span>
+            <span class="px-2 py-0.5 rounded text-xs font-semibold font-mono whitespace-nowrap bg-ok-soft text-ok border border-ok">over 24h &middot; 3</span>
+            <span class="text-fg-3">colour is the clock; the button below it is the action</span>
+          </div>
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
 
             <!-- Column: customs hold -->
             <div class="bg-surface-2 border border-rule rounded p-2">
@@ -206,6 +214,8 @@ table.grid th{font-size:11px}
                 <div class="text-xs text-fg-3">Los Angeles &middot; entry under exam</div>
                 <div class="mt-1"><span class="pill warn">also missed vessel</span></div>
                 <div class="text-xs text-fg-3 mt-1 font-mono">src: customs broker &middot; confirmed 09:12</div>
+                <div class="mt-2"><span class="px-2 py-0.5 rounded text-xs font-semibold font-mono whitespace-nowrap bg-stop text-surface">45m left</span></div>
+                <a href="#" class="btn block w-full box-border text-center no-underline mt-1" title="Go to portal page: Documents">Upload exam invoice &rarr;</a>
               </div>
               <div class="bg-surface border border-rule rounded p-2 mb-2">
                 <div class="flex justify-between items-baseline"><b class="font-mono text-sm">SHP-20388</b><span class="font-mono text-xs text-fg-3">age 1d 3h</span></div>
@@ -213,6 +223,8 @@ table.grid th{font-size:11px}
                 <div class="text-xs text-fg-3">Long Beach &middot; ISF query</div>
                 <div class="mt-1"><span class="pill stop">unconfirmed</span></div>
                 <div class="text-xs text-fg-3 mt-1 font-mono">src: broker vs carrier disagree</div>
+                <div class="mt-2"><span class="px-2 py-0.5 rounded text-xs font-semibold font-mono whitespace-nowrap bg-warn-soft text-warn border border-warn">3h left</span></div>
+                <div class="mt-1 px-2 py-1 rounded text-xs text-center text-fg-3 bg-surface-2 border border-dashed border-rule">Ops will advise</div>
               </div>
             </div>
 
@@ -225,12 +237,16 @@ table.grid th{font-size:11px}
                 <div class="text-xs text-fg-3">Shanghai &middot; next sailing +7 days</div>
                 <div class="mt-1"><span class="pill warn">also customs hold</span></div>
                 <div class="text-xs text-fg-3 mt-1 font-mono">src: carrier EDI &middot; confirmed 07:40</div>
+                <div class="mt-2"><span class="px-2 py-0.5 rounded text-xs font-semibold font-mono whitespace-nowrap bg-warn-soft text-warn border border-warn">5h left</span></div>
+                <a href="#" class="btn block w-full box-border text-center no-underline mt-1" title="Go to portal page: Booking">Confirm rebooking &rarr;</a>
               </div>
               <div class="bg-surface border border-rule rounded p-2 mb-2">
                 <div class="flex justify-between items-baseline"><b class="font-mono text-sm">SHP-20431</b><span class="font-mono text-xs text-fg-3">age 4h</span></div>
                 <div class="text-sm text-fg">3 of 3 containers</div>
                 <div class="text-xs text-fg-3">Ningbo &middot; cut off missed</div>
                 <div class="text-xs text-fg-3 mt-1 font-mono">src: carrier EDI &middot; confirmed 11:05</div>
+                <div class="mt-2"><span class="px-2 py-0.5 rounded text-xs font-semibold font-mono whitespace-nowrap bg-accent-soft text-accent border border-accent">20h left</span></div>
+                <a href="#" class="btn block w-full box-border text-center no-underline mt-1" title="Go to portal page: Booking">Choose sailing option &rarr;</a>
               </div>
             </div>
 
@@ -243,6 +259,8 @@ table.grid th{font-size:11px}
                 <div class="text-xs text-fg-3">Packing list weight mismatch</div>
                 <div class="mt-1"><span class="pill new">supplier to fix</span></div>
                 <div class="text-xs text-fg-3 mt-1 font-mono">src: doc check &middot; confirmed 08:30</div>
+                <div class="mt-2"><span class="px-2 py-0.5 rounded text-xs font-semibold font-mono whitespace-nowrap bg-ok-soft text-ok border border-ok">2d 6h left</span></div>
+                <a href="#" class="btn block w-full box-border text-center no-underline mt-1" title="Go to portal page: Documents">Request fix &rarr;</a>
               </div>
               <div class="bg-surface border border-rule rounded p-2 mb-2">
                 <div class="flex justify-between items-baseline"><b class="font-mono text-sm">SHP-20415</b><span class="font-mono text-xs text-fg-3">age 1d</span></div>
@@ -250,6 +268,8 @@ table.grid th{font-size:11px}
                 <div class="text-xs text-fg-3">Customs declaration, HS code missing</div>
                 <div class="mt-1"><span class="pill warn">ops will advise</span></div>
                 <div class="text-xs text-fg-3 mt-1 font-mono">src: doc check &middot; confirmed 10:02</div>
+                <div class="mt-2"><span class="px-2 py-0.5 rounded text-xs font-semibold font-mono whitespace-nowrap bg-ok-soft text-ok border border-ok">4d left</span></div>
+                <div class="mt-1 px-2 py-1 rounded text-xs text-center text-fg-3 bg-surface-2 border border-dashed border-rule">Ops will advise</div>
               </div>
             </div>
 
@@ -263,6 +283,8 @@ table.grid th{font-size:11px}
                 <div class="font-mono text-xs text-warn">capped at 150 words: truncated, full text in log</div>
                 <div class="mt-1"><span class="pill warn">ops will advise</span></div>
                 <div class="text-xs text-fg-3 mt-1 font-mono">src: ops note &middot; confirmed 10:48</div>
+                <div class="mt-2"><span class="px-2 py-0.5 rounded text-xs font-semibold font-mono whitespace-nowrap bg-ok-soft text-ok border border-ok">3d+ left</span></div>
+                <div class="mt-1 px-2 py-1 rounded text-xs text-center text-fg-3 bg-surface-2 border border-dashed border-rule">Ops will advise</div>
               </div>
               <p class="text-xs text-fg-3 px-1 m-0">Other never gets a suggested action; it routes to ops (R4).</p>
             </div>
@@ -279,10 +301,12 @@ table.grid th{font-size:11px}
             <dt>Status</dt><dd><span class="pill stop">hold</span> entry under exam</dd>
             <dt>Source</dt><dd>Customs broker</dd>
             <dt>Last confirmed</dt><dd class="font-mono">09:12 today</dd>
+            <dt>Time left</dt><dd><span class="px-2 py-0.5 rounded bg-stop text-surface text-xs font-semibold font-mono">45m</span> exam response window closes 12:00</dd>
             <dt>Also open</dt><dd>Missed vessel on the other 2 containers, now a later sailing</dd>
           </dl>
           <div class="bg-warn-soft text-warn text-xs rounded px-2 py-1 mb-3">Grain: the hold is on the entry, the roll is on 2 containers. Same shipment, two ETAs.</div>
 
+          <a href="#" class="btn pri block w-full box-border text-center no-underline mb-3">Upload exam invoice &rarr;</a>
           <div class="font-mono text-xs uppercase tracking-wider text-fg-3 mb-2">Suggested actions (up to 3)</div>
           <ol class="pl-5 m-0">
             <li class="mb-3">
@@ -305,7 +329,7 @@ table.grid th{font-size:11px}
         </div>
       </div>
     </div>
-    <p class="text-xs text-fg-3 mt-2">Illustrative: all shipment IDs, container numbers, ports, ages, times and playbook passages are made up for the prototype. Assumed: playbook section numbers and wording, the "supplier to fix" tag, and the portal page names.</p>
+    <p class="text-xs text-fg-3 mt-2">Illustrative: all shipment IDs, container numbers, ports, ages, times and playbook passages are made up for the prototype. Assumed: playbook section numbers and wording, the "supplier to fix" tag, and the portal page names. Assumed: the time-left tiers (under 1h, 1h to 6h, 6h to 24h, over 24h) and the deadline each type counts down to (customs exam response window, next vessel cut off, terminal free time, document filing deadline). A card with no known deadline shows "deadline unknown" in grey, never green.</p>
   </div>
 
   <!-- ===================== screen 2: uncertain ===================== -->
@@ -320,15 +344,15 @@ table.grid th{font-size:11px}
         <div class="right"><span class="pill stop">3 abstained</span></div>
       </div>
       <div class="banner stop"><b>Unconfirmed: customs status.</b> Broker says <b>Hold</b>, carrier says <b>Released</b>. We are not choosing between them. Ops has been asked to confirm.</div>
-      <div class="mock-body" style="grid-template-columns:1fr 420px">
+      <div class="mock-body !grid-cols-1 xl:!grid-cols-[1fr_420px]">
         <div class="main">
-          <div class="main-h"><h4>Abstained cards</h4><span class="hint">routed to ops</span></div>
+          <div class="main-h"><h4>Abstained cards</h4><span class="hint">routed to ops &middot; soonest deadline first</span></div>
           <table class="grid">
-            <thead><tr><th>Shipment</th><th>Column</th><th>Field in doubt</th><th>Why no suggestion</th><th>State</th></tr></thead>
+            <thead><tr><th>Shipment</th><th>Column</th><th>Field in doubt</th><th>Why no suggestion</th><th>Time left</th><th>State</th></tr></thead>
             <tbody>
-              <tr class="r sel flag"><td class="font-mono">SHP-20388</td><td>Customs hold</td><td><b>customs status</b></td><td>Status unconfirmed: sources disagree</td><td><span class="pill warn">ops will advise</span></td></tr>
-              <tr class="r soft"><td class="font-mono">SHP-20415</td><td>Document error</td><td><b>action</b></td><td>Retrieval below confidence cutoff</td><td><span class="pill warn">ops will advise</span></td></tr>
-              <tr class="r soft"><td class="font-mono">SHP-20398</td><td>Other</td><td><b>exception type</b></td><td>"Other" is never auto-suggested</td><td><span class="pill warn">ops will advise</span></td></tr>
+              <tr class="r sel flag"><td class="font-mono">SHP-20388</td><td>Customs hold</td><td><b>customs status</b></td><td>Status unconfirmed: sources disagree</td><td><span class="px-2 py-0.5 rounded text-xs font-semibold font-mono whitespace-nowrap bg-warn-soft text-warn border border-warn">3h</span></td><td><span class="pill warn">ops will advise</span></td></tr>
+              <tr class="r soft"><td class="font-mono">SHP-20415</td><td>Document error</td><td><b>action</b></td><td>Retrieval below confidence cutoff</td><td><span class="px-2 py-0.5 rounded text-xs font-semibold font-mono whitespace-nowrap bg-ok-soft text-ok border border-ok">4d</span></td><td><span class="pill warn">ops will advise</span></td></tr>
+              <tr class="r soft"><td class="font-mono">SHP-20398</td><td>Other</td><td><b>exception type</b></td><td>"Other" is never auto-suggested</td><td><span class="px-2 py-0.5 rounded text-xs font-semibold font-mono whitespace-nowrap bg-ok-soft text-ok border border-ok">3d+</span></td><td><span class="pill warn">ops will advise</span></td></tr>
             </tbody>
           </table>
 
@@ -353,6 +377,7 @@ table.grid th{font-size:11px}
         <div class="panel">
           <h5>SHP-20388 &middot; customs hold</h5>
           <div class="meta">Long Beach &middot; 1 of 1 containers &middot; age 1d 3h</div>
+          <div class="flex items-center gap-2 mb-3"><span class="font-mono text-xs uppercase tracking-wider text-fg-3">Time left to act</span><span class="px-2 py-0.5 rounded text-xs font-semibold font-mono whitespace-nowrap bg-warn-soft text-warn border border-warn">3h</span><span class="text-xs text-fg-2">ISF response window closes 13:40</span></div>
           <div class="bg-stop-soft text-stop rounded p-3 mb-3">
             <div class="font-mono text-xs uppercase tracking-wider mb-1">Field in doubt</div>
             <div class="text-base"><b>customs status</b></div>
@@ -369,6 +394,7 @@ table.grid th{font-size:11px}
           <dl class="kv">
             <dt>Routed</dt><dd class="font-mono">10:21 today</dd>
             <dt>Ops target</dt><dd>reply within 1 hour <span class="text-xs text-fg-3">(assumed)</span></dd>
+            <dt>Escalation</dt><dd>if ops has not confirmed with under 1h left, the card turns red for the ops lead <span class="text-xs text-fg-3">(assumed)</span></dd>
           </dl>
           <div class="actions">
             <a href="#" class="btn">View source events</a>
@@ -378,7 +404,7 @@ table.grid th{font-size:11px}
         </div>
       </div>
     </div>
-    <p class="text-xs text-fg-3 mt-2">Illustrative: shipment IDs, ports, times, sources and retrieval scores are made up. Assumed: the confidence cutoff value, the ops reply target, and the "most recent event does not win" rule.</p>
+    <p class="text-xs text-fg-3 mt-2">Illustrative: shipment IDs, ports, times, deadlines, sources and retrieval scores are made up. Assumed: the confidence cutoff value, the ops reply target, the escalation rule, and the "most recent event does not win" rule. Abstaining hides the suggestion, never the clock.</p>
   </div>
 
   <!-- ===================== screen 3: correction and audit ===================== -->
@@ -402,12 +428,12 @@ table.grid th{font-size:11px}
         <div class="main">
           <div class="main-h"><h4>Suggestions to review</h4><span class="hint">oldest first</span></div>
           <table class="grid">
-            <thead><tr><th>Shipment</th><th>Type</th><th>Suggestion shown</th><th>Planner followed</th><th>Verdict</th></tr></thead>
+            <thead><tr><th>Shipment</th><th>Type</th><th>Suggestion shown</th><th>Time left when shown</th><th>Planner followed</th><th>Verdict</th></tr></thead>
             <tbody>
-              <tr class="r sel flag"><td class="font-mono">SHP-20431</td><td>Missed vessel</td><td>Approve rebooking on next sailing</td><td>yes</td><td><span class="pill stop">wrong</span></td></tr>
-              <tr class="r"><td class="font-mono">SHP-20417</td><td>Customs hold</td><td>Upload commercial invoice</td><td>yes</td><td><span class="pill ok">correct</span></td></tr>
-              <tr class="r"><td class="font-mono">SHP-20402</td><td>Document error</td><td>Request corrected packing list</td><td>no</td><td><span class="pill new">to review</span></td></tr>
-              <tr class="r"><td class="font-mono">SHP-20409</td><td>Missed vessel</td><td>Replan downstream delivery</td><td>yes</td><td><span class="pill new">to review</span></td></tr>
+              <tr class="r sel flag"><td class="font-mono">SHP-20431</td><td>Missed vessel</td><td>Approve rebooking on next sailing</td><td><span class="px-2 py-0.5 rounded text-xs font-semibold font-mono whitespace-nowrap bg-accent-soft text-accent border border-accent">20h</span></td><td>yes</td><td><span class="pill stop">wrong</span></td></tr>
+              <tr class="r"><td class="font-mono">SHP-20417</td><td>Customs hold</td><td>Upload commercial invoice</td><td><span class="px-2 py-0.5 rounded text-xs font-semibold font-mono whitespace-nowrap bg-stop text-surface">45m</span></td><td>yes</td><td><span class="pill ok">correct</span></td></tr>
+              <tr class="r"><td class="font-mono">SHP-20402</td><td>Document error</td><td>Request corrected packing list</td><td><span class="px-2 py-0.5 rounded text-xs font-semibold font-mono whitespace-nowrap bg-ok-soft text-ok border border-ok">2d 6h</span></td><td>no</td><td><span class="pill new">to review</span></td></tr>
+              <tr class="r"><td class="font-mono">SHP-20409</td><td>Missed vessel</td><td>Replan downstream delivery</td><td><span class="px-2 py-0.5 rounded text-xs font-semibold font-mono whitespace-nowrap bg-accent-soft text-accent border border-accent">8h</span></td><td>yes</td><td><span class="pill new">to review</span></td></tr>
             </tbody>
           </table>
 
@@ -433,6 +459,7 @@ table.grid th{font-size:11px}
             <dt>Suggested</dt><dd>Approve rebooking on next sailing</dd>
             <dt>Cited</dt><dd class="text-xs">Playbook &sect;3.1, rolled cargo</dd>
             <dt>Retrieval</dt><dd><div class="conf"><i style="width:74%"></i></div><span class="hint">top score 0.74</span></dd>
+            <dt>Time left</dt><dd><span class="px-2 py-0.5 rounded text-xs font-semibold font-mono whitespace-nowrap bg-accent-soft text-accent border border-accent">20h</span> <span class="text-xs text-fg-2">when shown, to next vessel cut off</span></dd>
           </dl>
           <div class="font-mono text-xs uppercase tracking-wider text-fg-3 mb-1">Verdict</div>
           <div class="flex gap-2 mb-3">
@@ -462,7 +489,7 @@ table.grid th{font-size:11px}
         </div>
       </div>
     </div>
-    <p class="text-xs text-fg-3 mt-2">Illustrative: shipment IDs, annotator name, times, counts, wrong rates and retrieval scores are made up. Assumed: the 5% threshold, the rolling 7-day window and the 1-hour alert (as stated in N3), and that "planner followed" is logged from the link click.</p>
+    <p class="text-xs text-fg-3 mt-2">Illustrative: shipment IDs, annotator name, times, counts, wrong rates and retrieval scores are made up. Assumed: the 5% threshold, the rolling 7-day window and the 1-hour alert (as stated in N3), that "planner followed" is logged from the link click, and the deadline each time-left value counts down to. A wrong suggestion shown under 1h is the costliest kind, so time left is kept on the record for weighting the eval set.</p>
   </div>
 </main>
 
