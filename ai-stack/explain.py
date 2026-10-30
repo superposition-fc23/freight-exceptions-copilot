@@ -9,6 +9,7 @@ so the model cannot invent a citation or a link.
 import json
 import re
 import sys
+import time
 
 from llm import ask
 from rag import retrieve
@@ -75,11 +76,13 @@ def explain(e, minutes_left=None):
     if e["type"] == "other":
         return abstain(e, 'Exception type "other" is never auto-suggested', "exception type")
 
+    t0 = time.perf_counter()
     hits = [h for h in retrieve(query_for(e), 10) if "/playbook/" in h.metadata.get("file_path", "")]
     passages = [{"n": i + 1, "section": _section(h.get_content()), "score": round(h.score, 3),
                  "portal_page": _portal_page(h.get_content()), "text": h.get_content()}
                 for i, h in enumerate(h for h in hits[:4] if h.score >= FLOOR)]
     retrieval = {"top_score": round(hits[0].score, 3) if hits else None, "cutoff": CUTOFF,
+                 "query": query_for(e), "ms": round((time.perf_counter() - t0) * 1000),
                  "passages": [{k: p[k] for k in ("section", "score")} for p in passages]}
     if not hits or hits[0].score < CUTOFF:
         return abstain(e, "Retrieval below confidence cutoff", "action", retrieval)
@@ -89,18 +92,22 @@ def explain(e, minutes_left=None):
               f"{e['containers']['total']} containers. {e['detail']}. Deadline: {e['deadline_reason']}.\n\n"
               f"Playbook passages:\n{context}")
     routing = pick_model(e, minutes_left)
+    t1 = time.perf_counter()
     raw = ask(routing["model"], prompt, system=SYSTEM, max_tokens=1500, effort="low")
+    routing["ms"] = round((time.perf_counter() - t1) * 1000)
     try:
         proposed = json.loads(raw[raw.index("{"):raw.rindex("}") + 1])["actions"]
     except (ValueError, KeyError):
         return {**abstain(e, "Model reply was not valid JSON", "action", retrieval), "routing": routing}
 
     by_n = {p["n"]: p for p in passages}
-    actions, dropped = [], 0
+    actions, dropped, checks = [], 0, []
     for a in proposed:
         p = by_n.get(a.get("source"))
         # N2: no suggestion without a passage that really contains the quoted words.
-        if not p or not a.get("quote") or _norm(a["quote"]) not in _norm(p["text"]):
+        ok = bool(p and a.get("quote") and _norm(a["quote"]) in _norm(p["text"]))
+        checks.append({"action": a.get("action"), "source": a.get("source"), "quote_found": ok})
+        if not ok:
             dropped += 1
             continue
         actions.append({"action": a["action"], "citation": {"section": p["section"], "quote": a["quote"]},
@@ -109,7 +116,7 @@ def explain(e, minutes_left=None):
         return {**abstain(e, "No suggested action could be tied to a playbook passage", "action", retrieval),
                 "routing": routing}
     return {"exception_id": e["id"], "status": "suggested", "actions": actions[:MAX_ACTIONS],
-            "dropped_uncited": dropped, "routing": routing, "retrieval": retrieval}
+            "dropped_uncited": dropped, "checks": checks, "routing": routing, "retrieval": retrieval}
 
 
 if __name__ == "__main__":

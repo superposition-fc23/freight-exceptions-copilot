@@ -5,6 +5,8 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 DATA = json.loads((Path(__file__).parent / "data" / "exceptions.json").read_text())
@@ -44,6 +46,16 @@ def enrich(e):
     deadline = datetime.fromisoformat(e["deadline"]) if e.get("deadline") else None
     minutes = max(0, int((deadline - NOW).total_seconds() // 60)) if deadline else None
     return {**e, "minutes_left": minutes, "time_left": time_left(minutes), "tier": tier(minutes)}
+
+
+ROOT = Path(__file__).parent.parent
+app.mount("/app", StaticFiles(directory=ROOT / "app", html=True), name="app")
+app.mount("/case", StaticFiles(directory=ROOT / "case", html=True), name="case")
+
+
+@app.get("/", include_in_schema=False)
+def home():
+    return RedirectResponse("/app/")
 
 
 @app.get("/health")

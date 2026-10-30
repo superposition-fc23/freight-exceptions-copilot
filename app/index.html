@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Freight exceptions copilot</title>
+<link rel="stylesheet" href="app.css">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>
+tailwind.config = {
+  corePlugins: { preflight: false },
+  theme: { extend: {
+    colors: {
+      bg: 'var(--bg)', surface: 'var(--surface)', 'surface-2': 'var(--surface-2)', 'surface-3': 'var(--surface-3)',
+      fg: 'var(--fg)', 'fg-2': 'var(--fg-2)', 'fg-3': 'var(--fg-3)', rule: 'var(--rule)', 'rule-2': 'var(--rule-2)',
+      accent: 'var(--accent)', 'accent-soft': 'var(--accent-soft)', ok: 'var(--ok)', 'ok-soft': 'var(--ok-soft)',
+      warn: 'var(--warn)', 'warn-soft': 'var(--warn-soft)', stop: 'var(--stop)', 'stop-soft': 'var(--stop-soft)',
+    },
+    fontFamily: { body: 'var(--body)', mono: 'var(--mono)', serif: 'var(--serif)' },
+  } },
+};
+</script>
+<style>
+.wrap{max-width:1440px}
+.mock{font-size:14.5px}
+.board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:1100px){.board{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.board{grid-template-columns:1fr}}
+.layout{display:grid;grid-template-columns:1fr 440px;min-height:560px}
+@media (max-width:1100px){.layout{grid-template-columns:1fr}.layout .panel{border-left:none;border-top:1px solid var(--rule)}}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:9px;margin-bottom:8px;cursor:pointer}
+.card:hover{border-color:var(--rule-2)}
+.card.sel{background:var(--accent-soft);border:2px solid var(--accent);padding:8px}
+.chip-t{display:inline-block;padding:2px 8px;border-radius:3px;font-size:12px;font-weight:600;font-family:var(--mono);white-space:nowrap}
+.t-under_1h{background:var(--stop);color:var(--surface)}
+.t-1h_to_6h{background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn)}
+.t-6h_to_24h{background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent)}
+.t-over_24h{background:var(--ok-soft);color:var(--ok);border:1px solid var(--ok)}
+.t-unknown{background:var(--surface-2);color:var(--fg-3);border:1px solid var(--rule-2)}
+.bar{position:relative;height:8px;background:var(--surface-3);border-radius:4px}
+.bar > i{position:absolute;left:0;top:0;bottom:0;border-radius:4px}
+.bar > b{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--fg)}
+.step{display:flex;gap:8px;align-items:center;font-family:var(--mono);font-size:12px;color:var(--fg-3)}
+.step.on{color:var(--accent)} .step.done{color:var(--ok)}
+.spin{width:10px;height:10px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:s .8s linear infinite}
+@keyframes s{to{transform:rotate(360deg)}}
+.trace h6{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-3);margin:14px 0 6px}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <p class="kick">Live app &middot; <a href="https://github.com/superposition-fc23/freight-exceptions-copilot">source</a> &middot; <a href="../case/index.html">case</a></p>
+  <h1>Freight exceptions copilot</h1>
+  <p class="sub">Every open exception on your shipments, soonest deadline first. Pick one to get suggested actions retrieved from the resolution playbook, with the model choice, retrieval scores and citation checks shown as they happen.</p>
+  <div class="chips"><span class="chip" id="api">API: checking</span><span class="chip" id="clock">demo clock</span></div>
+</div></header>
+
+<main class="wrap" style="padding-top:20px;padding-bottom:48px">
+  <div class="mock">
+    <div class="mock-top">
+      <span class="brand">Exceptions <span class="font-mono text-xs text-fg-3 font-normal">&middot; your shipments, inbound</span></span>
+      <div class="right" id="summary"></div>
+    </div>
+    <div class="layout">
+      <div class="p-3 min-w-0"><div class="board" id="board"></div></div>
+      <div class="panel" id="panel"><p class="hint">Pick a card to see suggested actions and how they were decided.</p></div>
+    </div>
+  </div>
+  <p class="text-xs text-fg-3 mt-2">Illustrative data: shipment IDs, ports, times and playbook passages are made up. Suggested actions are generated live by Claude from the playbook; nothing is cached.</p>
+</main>
+
+<script>
+const API = location.protocol === 'file:' ? 'http://127.0.0.1:8000' : '';
+const COLUMNS = [['customs_hold', 'Customs hold'], ['missed_vessel', 'Missed vessel'], ['document_error', 'Document error'], ['other', 'Other']];
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const $ = id => document.getElementById(id);
+let rows = [], selected = null;
+
+async function api(path, body) {
+  const r = await fetch(API + path, body ? {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)} : {});
+  if (!r.ok) throw new Error(`${path}: HTTP ${r.status}`);
+  return r.json();
+}
+
+const conflict = e => new Set(e.sources.map(s => s.status)).size > 1;
+
+function card(e) {
+  const action = e.action && !conflict(e) && e.type !== 'other'
+    ? `<span class="btn block text-center mt-1">${esc(e.action.label)} &rarr;</span>`
+    : `<div class="mt-1 px-2 py-1 rounded text-xs text-center text-fg-3 bg-surface-2 border border-dashed border-rule">Ops will advise</div>`;
+  const src = conflict(e) ? 'sources disagree' : `${e.sources[0].system} · confirmed ${e.sources[0].event_at.slice(11, 16)}`;
+  return `<div class="card ${selected === e.id ? 'sel' : ''}" data-id="${e.id}">
+    <div class="flex justify-between items-baseline"><b class="font-mono text-sm">${e.shipment}</b><span class="font-mono text-xs text-fg-3">age ${e.age_hours}h</span></div>
+    <div class="text-sm">${e.containers.affected} of ${e.containers.total} containers</div>
+    <div class="text-xs text-fg-3">${esc(e.location)} &middot; ${esc(e.type === 'other' ? 'see detail' : e.detail)}</div>
+    ${e.tags.map(t => `<span class="pill warn mt-1">${esc(t)}</span>`).join(' ')}
+    ${conflict(e) ? '<span class="pill stop mt-1">unconfirmed</span>' : ''}
+    <div class="text-xs text-fg-3 mt-1 font-mono">src: ${esc(src)}</div>
+    <div class="mt-2"><span class="chip-t t-${e.tier}">${e.time_left}</span></div>${action}</div>`;
+}
+
+function renderBoard() {
+  $('board').innerHTML = COLUMNS.map(([type, name]) => {
+    const cards = rows.filter(r => r.type === type);
+    return `<div class="bg-surface-2 border border-rule rounded p-2">
+      <div class="flex justify-between items-center px-1 mb-2"><span class="font-mono text-xs uppercase tracking-wider text-fg-2">${name}</span><span class="pill new">${cards.length}</span></div>
+      ${cards.map(card).join('')}</div>`;
+  }).join('');
+  document.querySelectorAll('.card').forEach(c => c.onclick = () => open(c.dataset.id));
+  const urgent = rows.filter(r => r.tier === 'under_1h').length;
+  $('summary').innerHTML = `<span class="pill new">${rows.length} open</span>` + (urgent ? `<span class="pill stop">${urgent} due in under 1h</span>` : '');
+}
+
+function steps(active) {
+  const names = ['Retrieve playbook passages', 'Route to a model', 'Write actions', 'Check every quote'];
+  return names.map((n, i) => `<div class="step ${i < active ? 'done' : i === active ? 'on' : ''}">${i < active ? '✓' : i === active ? '<span class="spin"></span>' : '·'} ${n}</div>`).join('');
+}
+
+async function open(id) {
+  selected = id; renderBoard();
+  const e = rows.find(r => r.id === id);
+  const head = `<h5>${e.shipment} &middot; ${e.type.replace('_', ' ')}</h5>
+    <div class="meta">${esc(e.route)} &middot; ${e.containers.total} containers</div>
+    <dl class="kv">
+      <dt>Affected</dt><dd>${e.containers.affected} of ${e.containers.total} containers</dd>
+      <dt>Detail</dt><dd>${esc(e.detail)}</dd>
+      <dt>Sources</dt><dd>${e.sources.map(s => `${esc(s.system)}: <b>${esc(s.status)}</b> <span class="font-mono text-xs text-fg-3">${s.event_at.slice(11, 16)}</span>`).join('<br>')}</dd>
+      <dt>Time left</dt><dd><span class="chip-t t-${e.tier}">${e.time_left}</span> ${esc(e.deadline_reason)}</dd>
+    </dl>`;
+  $('panel').innerHTML = head + `<div id="progress" class="mb-2">${steps(0)}</div>`;
+  // The API answers in one call; the steps advance on a timer only to show what the server is doing.
+  let k = 0; const tick = setInterval(() => { if (k < 2) $('progress') && ($('progress').innerHTML = steps(++k)); }, 900);
+  const t0 = performance.now();
+  try {
+    const r = await api('/explain', {exception_id: id});
+    clearInterval(tick);
+    if (selected === id) $('panel').innerHTML = head + result(r, Math.round(performance.now() - t0));
+  } catch (err) {
+    clearInterval(tick);
+    $('panel').innerHTML = head + `<div class="banner stop">Could not reach the API: ${esc(err.message)}</div>`;
+  }
+}
+
+function result(r, totalMs) {
+  let body;
+  if (r.status === 'abstained') {
+    body = `<div class="bg-warn-soft text-warn rounded px-3 py-2 text-sm mb-2"><b>No suggestion.</b> ${esc(r.reason)}. Field in doubt: <b>${esc(r.field_in_doubt)}</b>. Routed to ops; you do not need to contact anyone.</div>`;
+  } else {
+    body = `<div class="font-mono text-xs uppercase tracking-wider text-fg-3 mb-2">Suggested actions</div><ol class="pl-5 m-0">` +
+      r.actions.map(a => `<li class="mb-3"><div class="text-sm font-semibold">${esc(a.action)}</div>
+        <div class="text-xs text-fg-2 border-l-2 border-rule pl-2 my-1"><span class="font-mono text-fg-3">${esc(a.citation.section)}:</span> "${esc(a.citation.quote)}"</div>
+        <span class="text-xs text-accent">Go to portal page: ${esc(a.portal_page)} &rarr;</span></li>`).join('') + '</ol>';
+  }
+  return body + trace(r, totalMs);
+}
+
+function trace(r, totalMs) {
+  const ret = r.retrieval, ro = r.routing;
+  let html = `<div class="trace border-t border-rule mt-3 pt-1"><h6>How this was decided &middot; ${totalMs} ms</h6>`;
+  if (ro) {
+    html += `<h6>Router</h6><div class="text-sm"><b class="font-mono">${ro.model}</b> <span class="text-fg-3">p=${ro.confidence} &middot; ${ro.ms} ms</span></div>
+      <div class="text-xs text-fg-2">${esc(ro.reason)}</div>
+      <div class="text-xs text-fg-3 font-mono">runners-up: ${ro.alternatives.slice(1).map(a => `${a.model} ${a.p}`).join(', ')}</div>`;
+  }
+  if (ret) {
+    const pct = s => Math.max(0, Math.min(100, (s - 0.3) / 0.5 * 100)); // scale 0.30 to 0.80
+    html += `<h6>Retrieval &middot; ${ret.ms ?? '?'} ms &middot; cutoff ${ret.cutoff}</h6>
+      <div class="text-xs text-fg-3 font-mono mb-2">query: ${esc(ret.query)}</div>` +
+      (ret.passages.length ? ret.passages : [{section: 'top passage', score: ret.top_score}]).map(p =>
+        `<div class="text-xs mb-2"><div class="flex justify-between"><span>${esc(p.section)}</span><span class="font-mono">${p.score}</span></div>
+         <div class="bar"><i style="width:${pct(p.score)}%;background:var(${p.score >= ret.cutoff ? '--ok' : '--warn'})"></i><b style="left:${pct(ret.cutoff)}%"></b></div></div>`).join('');
+  }
+  if (r.checks) {
+    html += `<h6>Citation checks &middot; ${r.checks.filter(c => c.quote_found).length}/${r.checks.length} quotes found in their passage</h6>` +
+      r.checks.map(c => `<div class="text-xs ${c.quote_found ? 'text-ok' : 'text-stop'}">${c.quote_found ? '✓' : '✗ dropped'} [${c.source}] ${esc((c.action || '').slice(0, 70))}…</div>`).join('');
+  }
+  return html + '</div>';
+}
+
+(async () => {
+  try {
+    const h = await api('/health');
+    $('api').textContent = 'API: live'; $('api').style.color = 'var(--ok)';
+    $('clock').textContent = 'demo clock ' + h.now.replace('T', ' ').slice(0, 16);
+    rows = await api('/exceptions');
+    renderBoard();
+  } catch (err) {
+    $('api').textContent = 'API: offline'; $('api').style.color = 'var(--stop)';
+    $('board').innerHTML = `<div class="banner stop">Start the API: cd ai-stack && .venv/bin/uvicorn server:app</div>`;
+  }
+})();
+</script>
+</body>
+</html>
