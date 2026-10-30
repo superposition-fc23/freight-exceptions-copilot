@@ -90,6 +90,7 @@ class State(TypedDict, total=False):
     result: dict
     path: list
     guard: list
+    live_reviews: bool
 
 
 def _step(s, name, **out):
@@ -106,7 +107,7 @@ def guard(s: State) -> State:
         {"rule": "sources agree on status", "passed": len(statuses) == 1,
          "detail": ", ".join(f"{src['system']}: {src['status']}" for src in e["sources"])},
     ]
-    switched_off = killed(e["type"])
+    switched_off = killed(e["type"], s.get("live_reviews", True))
     rules.append({"rule": "kill switch off for this type", "passed": not switched_off,
                   "detail": f"wrong rate {switched_off['wrong_rate']:.1%} over {switched_off['reviewed']} reviews" if switched_off else None})
     out = _step(s, "guard", guard=rules)
@@ -193,8 +194,10 @@ graph.add_edge("check_citations", END)
 pipeline = graph.compile()
 
 
-def explain(e, minutes_left=None):
-    s = pipeline.invoke({"e": e, "minutes_left": minutes_left, "path": []})
+def explain(e, minutes_left=None, live_reviews=True):
+    """live_reviews=False ignores verdicts recorded since the seed, so evals measure the pipeline,
+    not whatever state a demo left the kill switch in."""
+    s = pipeline.invoke({"e": e, "minutes_left": minutes_left, "path": [], "live_reviews": live_reviews})
     return {**s["result"], "path": s["path"], "guard": s["guard"]}
 
 

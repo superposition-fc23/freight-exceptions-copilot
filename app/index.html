@@ -56,6 +56,16 @@ tailwind.config = {
 </div></header>
 
 <main class="wrap" style="padding-top:20px;padding-bottom:48px">
+  <div class="bg-surface border border-rule rounded p-3 mb-3">
+    <div class="font-mono text-xs uppercase tracking-wider text-fg-3 mb-2">Try this</div>
+    <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4" id="tour">
+      <button class="btn text-left" data-go="EXC-1"><b>1. The urgent card.</b> 45 minutes left: cited actions, and how they were decided.</button>
+      <button class="btn text-left" data-go="EXC-2"><b>2. Sources disagree.</b> Broker says hold, carrier says released, so it refuses to guess.</button>
+      <button class="btn text-left" data-go="ops"><b>3. Ops says it's wrong.</b> Mark a missed-vessel suggestion wrong and watch the kill switch trip.</button>
+      <button class="btn text-left" data-go="evals"><b>4. Run the evals.</b> Retrieval and end to end, streamed as they run.</button>
+    </div>
+  </div>
+  <div id="killed" class="hidden bg-stop-soft text-stop rounded px-3 py-2 mb-3 text-sm flex flex-wrap gap-3 items-center justify-between"></div>
   <div class="tabs" role="tablist">
     <button class="tab" data-screen="s-board" aria-selected="true">Exceptions board</button>
     <button class="tab" data-screen="s-ops" aria-selected="false">Ops review</button>
@@ -87,7 +97,7 @@ tailwind.config = {
         <div id="ops-review"><p class="hint">Pick an exception to load its suggested actions.</p></div>
       </div>
       <div class="bg-surface border border-rule rounded p-4 min-w-0">
-        <div class="flex justify-between items-center"><h3 class="m-0">Kill switch</h3><button class="btn" id="ops-reset" title="Drops live reviews, keeps the seeded history">Reset demo</button></div>
+        <h3 class="m-0">Kill switch</h3>
         <p class="hint mb-3" id="ks-note"></p>
         <div id="ks"></div>
         <h3>Audit trail</h3>
@@ -107,7 +117,7 @@ tailwind.config = {
       </div>
       <div class="bg-surface border border-rule rounded p-4 min-w-0">
         <div class="flex justify-between items-center gap-2 mb-1"><h3 class="m-0">End to end</h3><button class="btn pri" id="run-explain">Run</button></div>
-        <p class="text-sm text-fg-2 mb-3">Every exception through the full path (retrieval, router, Claude, citation check) compared with its expected outcome. Makes live Claude calls.</p>
+        <p class="text-sm text-fg-2 mb-3">Every exception through the full path (guard, retrieval, router, Claude, citation check) compared with its expected outcome. Uses the seeded review history, so verdicts you record in Ops review do not change the result.</p>
         <div id="exp-summary" class="flex flex-wrap gap-2 mb-3"></div>
         <div class="tbl m-0"><table class="grid"><thead><tr><th>Shipment</th><th>Expected</th><th>Got</th><th>Top section</th><th>Quotes</th><th>Model</th><th>ms</th></tr></thead><tbody id="exp-rows"><tr><td colspan="7" class="text-fg-3">Not run yet.</td></tr></tbody></table></div>
       </div>
@@ -290,6 +300,11 @@ $('run-explain').onclick = e => runEval(e.target, 'exp-rows', 'exp-summary', '/e
        stat('top section hit', s.top_section_hit, s.top_section_hit === 1) + stat('citation pass', s.citation_pass, s.citation_pass === 1) + stat('mean ms', s.mean_ms));
 
 function renderAudit(a) {
+  const off = a.by_type.filter(t => t.killed);
+  $('killed').classList.toggle('hidden', !off.length);
+  $('killed').innerHTML = off.length ? `<span><b>Kill switch on:</b> suggestions are off for ${off.map(t => `${t.type.replace('_', ' ')} (${(t.wrong_rate * 100).toFixed(1)}% marked wrong)`).join(', ')}. Those cards now route to ops.</span>
+    <button class="btn" id="undo">Undo my reviews</button>` : '';
+  if (off.length) $('undo').onclick = undoReviews;
   $('ks-note').textContent = `Suggestions for a type switch off when more than ${a.threshold * 100}% are marked wrong over at least ${a.min_reviewed} reviews. Labelled eval cases collected: ${a.eval_cases}.`;
   const scale = 0.1; // bars run 0% to 10%
   $('ks').innerHTML = a.by_type.map(t => `<div class="mb-3">
@@ -334,11 +349,22 @@ async function loadReview(id) {
 }
 
 $('ops-pick').onchange = e => loadReview(e.target.value);
-$('ops-reset').onclick = async () => {
+
+async function undoReviews() {
   renderAudit(await api('/audit/reset', {}));
   Object.keys(results).forEach(k => delete results[k]);
-  $('ops-review').innerHTML = '<p class="hint">Reset. Pick an exception to load its suggested actions.</p>'; $('ops-pick').value = '';
-};
+  $('ops-review').innerHTML = '<p class="hint">Your reviews were removed. Pick an exception to load its suggested actions.</p>'; $('ops-pick').value = '';
+  if (selected) open(selected);
+}
+
+function showTab(id) { document.querySelector(`.tab[data-screen="${id}"]`).click(); }
+
+document.querySelectorAll('#tour [data-go]').forEach(b => b.onclick = () => {
+  const go = b.dataset.go;
+  if (go === 'ops') { showTab('s-ops'); $('ops-pick').value = 'EXC-4'; loadReview('EXC-4'); }
+  else if (go === 'evals') showTab('s-evals');
+  else { showTab('s-board'); open(go); $('panel').scrollIntoView({behavior: 'smooth', block: 'nearest'}); }
+});
 
 (async () => {
   try {

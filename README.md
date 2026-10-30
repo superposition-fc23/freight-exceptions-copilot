@@ -20,8 +20,7 @@ Importers find out that a shipment has a problem (a customs hold, a missed vesse
 ## Run it
 
 ```
-cd ai-stack
-./setup.sh                      # once: Python env, local embedding model, vector index
-cp .env.example .env            # add ANTHROPIC_API_KEY
-.venv/bin/uvicorn server:app    # then open http://localhost:8000
+./run.sh
 ```
+
+First run sets up the Python environment and the local vector index, then opens http://localhost:8000. Put `ANTHROPIC_API_KEY` in `ai-stack/.env` for live suggestions. The "Try this" strip at the top of the app walks through the four things worth seeing.

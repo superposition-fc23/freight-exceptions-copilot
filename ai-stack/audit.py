@@ -22,8 +22,8 @@ def _read(path):
     return [json.loads(line) for line in path.read_text().splitlines() if line.strip()] if path.exists() else []
 
 
-def corrections():
-    return _read(SEED) + _read(LOG)
+def corrections(include_live=True):
+    return _read(SEED) + (_read(LOG) if include_live else [])
 
 
 def record(exception, action, verdict, resolved_by="", reviewer="ops", now=None):
@@ -41,8 +41,8 @@ def reset():
     LOG.unlink(missing_ok=True)
 
 
-def summary():
-    rows = corrections()
+def summary(include_live=True):
+    rows = corrections(include_live)
     by_type = []
     for t in TYPES:
         mine = [r for r in rows if r["type"] == t]
@@ -55,5 +55,5 @@ def summary():
             "trail": rows[-12:][::-1], "live_reviews": len(_read(LOG))}
 
 
-def killed(exception_type):
-    return next((t for t in summary()["by_type"] if t["type"] == exception_type and t["killed"]), None)
+def killed(exception_type, include_live=True):
+    return next((t for t in summary(include_live)["by_type"] if t["type"] == exception_type and t["killed"]), None)

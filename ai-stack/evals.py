@@ -5,6 +5,7 @@
 
 retrieval: questions with a known gold phrase, run against the production index (k=3).
 explain:   every exception through the full /explain path, compared with the expected outcome.
+           Runs against the seeded review history only, so live ops verdicts never change the result.
 """
 import json
 import sys
@@ -67,7 +68,7 @@ def explain_rows(exceptions, minutes_left):
     for e in exceptions:
         want_status, want_section = GOLD[e["id"]]
         t0 = time.perf_counter()
-        r = explain(e, minutes_left(e))
+        r = explain(e, minutes_left(e), live_reviews=False)
         passages = (r.get("retrieval") or {}).get("passages") or []
         top_section = passages[0]["section"] if passages else None
         checks = r.get("checks") or []
