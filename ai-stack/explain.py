@@ -1,0 +1,100 @@
+"""Suggested actions for one exception, each tied to a playbook passage (R3, N2).
+
+    .venv/bin/python explain.py EXC-1
+
+Retrieval decides whether we may suggest anything at all; the model only words actions
+from passages we hand it. Quotes and portal pages are checked against the passage text,
+so the model cannot invent a citation or a link.
+"""
+import json
+import re
+import sys
+
+from llm import ask
+from rag import retrieve
+
+# Tuned on the 6 typed exceptions in data/exceptions.json: every case with a playbook answer
+# scores >= 0.59 on its top passage, the HS-code case with no playbook section scores 0.48.
+# Six cases is a starting point, not a calibration; the ops corrections log is the real eval set.
+CUTOFF = 0.55
+FLOOR = 0.45  # passages below this are not offered to the model even when the top one clears the cutoff
+MAX_ACTIONS = 3
+
+SYSTEM = (
+    "You write suggested next actions for a logistics planner looking at one shipment exception. "
+    "Write each action as an instruction to the planner, who acts in the portal themselves. "
+    "Use only the numbered playbook passages. Each action must cite one passage by number and include "
+    "a short quote copied word for word from that passage. Do not suggest anything the passages do not "
+    "support, do not invent deadlines, amounts or parties, and do not repeat the same action twice. "
+    'Reply with JSON only: {"actions": [{"action": "...", "source": 1, "quote": "..."}]}, at most 3 actions, '
+    "most urgent first. An empty list is a valid answer."
+)
+
+
+def query_for(e):
+    return f"How to resolve a {e['type'].replace('_', ' ')}: {e['detail'][:200]}"
+
+
+def _section(text):
+    first = text.strip().splitlines()[0]
+    return first.lstrip("# ").strip()
+
+
+def _portal_page(text):
+    m = re.search(r"Portal page:\s*(\w+)", text)
+    return m.group(1) if m else None
+
+
+def _norm(s):
+    return re.sub(r"\s+", " ", s).strip().lower()
+
+
+def abstain(e, reason, field, retrieval=None):
+    return {"exception_id": e["id"], "status": "abstained", "reason": reason, "field_in_doubt": field,
+            "actions": [], "retrieval": retrieval}
+
+
+def explain(e, model_key="haiku-5.5"):
+    if e["type"] == "other":
+        return abstain(e, 'Exception type "other" is never auto-suggested', "exception type")
+
+    hits = [h for h in retrieve(query_for(e), 10) if "/playbook/" in h.metadata.get("file_path", "")]
+    passages = [{"n": i + 1, "section": _section(h.get_content()), "score": round(h.score, 3),
+                 "portal_page": _portal_page(h.get_content()), "text": h.get_content()}
+                for i, h in enumerate(h for h in hits[:4] if h.score >= FLOOR)]
+    retrieval = {"top_score": round(hits[0].score, 3) if hits else None, "cutoff": CUTOFF,
+                 "passages": [{k: p[k] for k in ("section", "score")} for p in passages]}
+    if not hits or hits[0].score < CUTOFF:
+        return abstain(e, "Retrieval below confidence cutoff", "action", retrieval)
+
+    context = "\n\n".join(f"[{p['n']}] {p['text']}" for p in passages)
+    prompt = (f"Exception: {e['type'].replace('_', ' ')} on {e['shipment']}, {e['containers']['affected']} of "
+              f"{e['containers']['total']} containers. {e['detail']}. Deadline: {e['deadline_reason']}.\n\n"
+              f"Playbook passages:\n{context}")
+    raw = ask(model_key, prompt, system=SYSTEM, max_tokens=1500, effort="low")
+    try:
+        proposed = json.loads(raw[raw.index("{"):raw.rindex("}") + 1])["actions"]
+    except (ValueError, KeyError):
+        return abstain(e, "Model reply was not valid JSON", "action", retrieval)
+
+    by_n = {p["n"]: p for p in passages}
+    actions, dropped = [], 0
+    for a in proposed:
+        p = by_n.get(a.get("source"))
+        # N2: no suggestion without a passage that really contains the quoted words.
+        if not p or not a.get("quote") or _norm(a["quote"]) not in _norm(p["text"]):
+            dropped += 1
+            continue
+        actions.append({"action": a["action"], "citation": {"section": p["section"], "quote": a["quote"]},
+                        "portal_page": p["portal_page"]})
+    if not actions:
+        return abstain(e, "No suggested action could be tied to a playbook passage", "action", retrieval)
+    return {"exception_id": e["id"], "status": "suggested", "actions": actions[:MAX_ACTIONS],
+            "dropped_uncited": dropped, "model": model_key, "retrieval": retrieval}
+
+
+if __name__ == "__main__":
+    data = json.load(open("data/exceptions.json"))["exceptions"]
+    ids = sys.argv[1:] or [e["id"] for e in data]
+    for e in (e for e in data if e["id"] in ids):
+        print(json.dumps(explain(e), indent=2))

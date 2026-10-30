@@ -5,6 +5,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 DATA = json.loads((Path(__file__).parent / "data" / "exceptions.json").read_text())
 NOW = datetime.fromisoformat(DATA["demo_now"])  # frozen clock so the demo always looks the same
@@ -57,9 +58,24 @@ def exceptions(type: str | None = None):
     return sorted(rows, key=lambda r: (r["minutes_left"] is None, r["minutes_left"] or 0))
 
 
-@app.get("/exceptions/{exception_id}")
-def exception(exception_id: str):
+def find(exception_id):
     for e in DATA["exceptions"]:
         if e["id"] == exception_id:
-            return enrich(e)
+            return e
     raise HTTPException(404, f"No exception {exception_id}")
+
+
+@app.get("/exceptions/{exception_id}")
+def exception(exception_id: str):
+    return enrich(find(exception_id))
+
+
+class ExplainRequest(BaseModel):
+    exception_id: str
+
+
+@app.post("/explain")
+def explain_exception(req: ExplainRequest):
+    """Up to 3 cited suggested actions, or an abstention naming the field in doubt (R3, R4, N2)."""
+    from explain import explain  # imported lazily so /exceptions works without the vector store loaded
+    return explain(find(req.exception_id))

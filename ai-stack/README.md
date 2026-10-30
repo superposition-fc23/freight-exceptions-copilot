@@ -39,5 +39,13 @@ Without keys everything still runs: retrieval is real, model steps run offline w
 |---|---|
 | `GET /exceptions` | Open exceptions, soonest deadline first, each with `time_left` and an urgency `tier` (under 1h, 1h to 6h, 6h to 24h, over 24h). Optional `?type=customs_hold` |
 | `GET /exceptions/{id}` | One exception |
+| `POST /explain` `{"exception_id": "EXC-1"}` | Up to 3 suggested actions, each with a playbook section, a quote and the portal page to act on, or an abstention naming the field in doubt. Needs `ANTHROPIC_API_KEY` |
+
+How `/explain` decides (`explain.py`):
+
+1. Exception type "other" never gets a suggestion.
+2. Retrieve from the resolution playbook (`docs/playbook/`, one file per section). If the top passage scores under **0.55**, abstain. The cutoff sits between the weakest case with a playbook answer (0.59) and the HS-code case that has none (0.48); six cases is a starting point, not a calibration.
+3. Claude (Haiku 5.5) words up to 3 actions from the passages it is given, each citing a passage number and a quote.
+4. Every quote is checked word for word against its passage and the portal page comes from the passage, not the model. An action that fails the check is dropped; if none survive, abstain.
 
 Data lives in `data/exceptions.json` with a frozen demo clock, so the screens always match the prototype.
