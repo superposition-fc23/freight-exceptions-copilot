@@ -39,6 +39,8 @@ Without keys everything still runs: retrieval is real, model steps run offline w
 |---|---|
 | `GET /exceptions` | Open exceptions, soonest deadline first, each with `time_left` and an urgency `tier` (under 1h, 1h to 6h, 6h to 24h, over 24h). Optional `?type=customs_hold` |
 | `GET /exceptions/{id}` | One exception |
+| `GET /eval/retrieval` | Streams the retrieval eval as NDJSON, one row per question, then recall@3, precision@3 and MRR. No model calls |
+| `GET /eval/explain` | Streams the end-to-end eval: every exception through `/explain`, compared with its expected outcome and top playbook section (`evals.py`) |
 | `POST /explain` `{"exception_id": "EXC-1"}` | Up to 3 suggested actions, each with a playbook section, a quote and the portal page to act on, or an abstention naming the field in doubt. Needs `ANTHROPIC_API_KEY` |
 
 How `/explain` decides (`explain.py`):

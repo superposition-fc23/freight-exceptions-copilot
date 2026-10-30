@@ -56,6 +56,11 @@ tailwind.config = {
 </div></header>
 
 <main class="wrap" style="padding-top:20px;padding-bottom:48px">
+  <div class="tabs" role="tablist">
+    <button class="tab" data-screen="s-board" aria-selected="true">Exceptions board</button>
+    <button class="tab" data-screen="s-evals" aria-selected="false">Evals</button>
+  </div>
+  <div class="screen on" id="s-board">
   <div class="mock">
     <div class="mock-top">
       <span class="brand">Exceptions <span class="font-mono text-xs text-fg-3 font-normal">&middot; your shipments, inbound</span></span>
@@ -67,6 +72,24 @@ tailwind.config = {
     </div>
   </div>
   <p class="text-xs text-fg-3 mt-2">Illustrative data: shipment IDs, ports, times and playbook passages are made up. Suggested actions are generated live by Claude from the playbook; nothing is cached.</p>
+  </div>
+
+  <div class="screen" id="s-evals">
+    <div class="grid gap-4 lg:grid-cols-2">
+      <div class="bg-surface border border-rule rounded p-4 min-w-0">
+        <div class="flex justify-between items-center gap-2 mb-1"><h3 class="m-0">Retrieval</h3><button class="btn pri" id="run-retrieval">Run</button></div>
+        <p class="text-sm text-fg-2 mb-3">Questions with a known answer phrase, paraphrased so wording alone cannot match, run against the live index. No model calls.</p>
+        <div id="ret-summary" class="flex flex-wrap gap-2 mb-3"></div>
+        <div class="tbl m-0"><table class="grid"><thead><tr><th>Set</th><th>Question</th><th>Rank</th><th>Top score</th></tr></thead><tbody id="ret-rows"><tr><td colspan="4" class="text-fg-3">Not run yet.</td></tr></tbody></table></div>
+      </div>
+      <div class="bg-surface border border-rule rounded p-4 min-w-0">
+        <div class="flex justify-between items-center gap-2 mb-1"><h3 class="m-0">End to end</h3><button class="btn pri" id="run-explain">Run</button></div>
+        <p class="text-sm text-fg-2 mb-3">Every exception through the full path (retrieval, router, Claude, citation check) compared with its expected outcome. Makes live Claude calls.</p>
+        <div id="exp-summary" class="flex flex-wrap gap-2 mb-3"></div>
+        <div class="tbl m-0"><table class="grid"><thead><tr><th>Shipment</th><th>Expected</th><th>Got</th><th>Top section</th><th>Quotes</th><th>Model</th><th>ms</th></tr></thead><tbody id="exp-rows"><tr><td colspan="7" class="text-fg-3">Not run yet.</td></tr></tbody></table></div>
+      </div>
+    </div>
+  </div>
 </main>
 
 <script>
@@ -176,6 +199,54 @@ function trace(r, totalMs) {
   }
   return html + '</div>';
 }
+
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+  document.querySelectorAll('.tab').forEach(x => x.setAttribute('aria-selected', x === t));
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === t.dataset.screen));
+});
+
+// Read an NDJSON stream line by line so each eval row appears as soon as the server finishes it.
+async function stream(path, onRow, onSummary) {
+  const r = await fetch(API + path);
+  const reader = r.body.getReader(), dec = new TextDecoder();
+  let buf = '';
+  for (;;) {
+    const {value, done} = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, {stream: true});
+    let i;
+    while ((i = buf.indexOf('\n')) >= 0) {
+      const msg = JSON.parse(buf.slice(0, i)); buf = buf.slice(i + 1);
+      msg.row ? onRow(msg.row) : onSummary(msg.summary);
+    }
+  }
+}
+
+const stat = (label, v, good) => `<span class="pill ${good === undefined ? 'new' : good ? 'ok' : 'stop'}">${label} ${v}</span>`;
+const mark = ok => ok ? '<span class="text-ok">✓</span>' : '<span class="text-stop">✗</span>';
+
+async function runEval(button, rowsEl, summaryEl, path, rowHtml, summaryHtml) {
+  button.disabled = true; button.textContent = 'Running…';
+  $(rowsEl).innerHTML = ''; $(summaryEl).innerHTML = '<span class="step on"><span class="spin"></span> streaming results</span>';
+  try {
+    await stream(path, row => $(rowsEl).insertAdjacentHTML('beforeend', rowHtml(row)), s => $(summaryEl).innerHTML = summaryHtml(s));
+  } catch (err) {
+    $(summaryEl).innerHTML = `<span class="pill stop">failed: ${esc(err.message)}</span>`;
+  }
+  button.disabled = false; button.textContent = 'Run again';
+}
+
+$('run-retrieval').onclick = e => runEval(e.target, 'ret-rows', 'ret-summary', '/eval/retrieval',
+  r => `<tr><td class="font-mono text-xs">${r.set}</td><td>${esc(r.question)}</td><td class="num">${r.rank ? `${mark(true)} ${r.rank}` : mark(false)}</td><td class="num">${r.top_score}</td></tr>`,
+  s => stat(`recall@${s.k}`, s.recall, s.recall >= 0.9) + stat(`precision@${s.k}`, s.precision) + stat('MRR', s.mrr, s.mrr >= 0.8) + stat('questions', s.n));
+
+$('run-explain').onclick = e => runEval(e.target, 'exp-rows', 'exp-summary', '/eval/explain',
+  r => `<tr><td class="font-mono text-xs">${r.shipment}<br><span class="text-fg-3">${r.type.replace('_', ' ')}</span></td><td>${r.expected}</td>
+    <td>${mark(r.status_ok)} ${r.got}${r.reason ? `<div class="text-xs text-fg-3">${esc(r.reason)}</div>` : ''}</td>
+    <td class="text-xs">${r.section_ok === null ? (r.top_section ? esc(r.top_section) : '-') : `${mark(r.section_ok)} ${esc(r.top_section || 'none')}`}</td>
+    <td class="num">${r.quotes ? `${r.quotes_ok}/${r.quotes}` : '-'}</td><td class="font-mono text-xs">${r.model || '-'}</td><td class="num">${r.ms}</td></tr>`,
+  s => stat('outcome accuracy', s.outcome_accuracy, s.outcome_accuracy === 1) + stat('abstention recall', s.abstention_recall, s.abstention_recall === 1) +
+       stat('top section hit', s.top_section_hit, s.top_section_hit === 1) + stat('citation pass', s.citation_pass, s.citation_pass === 1) + stat('mean ms', s.mean_ms));
 
 (async () => {
   try {

@@ -5,7 +5,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -91,3 +91,25 @@ def explain_exception(req: ExplainRequest):
     """Up to 3 cited suggested actions, or an abstention naming the field in doubt (R3, R4, N2)."""
     from explain import explain  # imported lazily so /exceptions works without the vector store loaded
     return explain(find(req.exception_id), enrich(find(req.exception_id))["minutes_left"])
+
+
+def _stream(rows, summarize):
+    """NDJSON: one line per eval row as it finishes, then a summary line, so the UI fills in live."""
+    done = []
+    for row in rows:
+        done.append(row)
+        yield json.dumps({"row": row}) + "\n"
+    yield json.dumps({"summary": summarize(done)}) + "\n"
+
+
+@app.get("/eval/retrieval")
+def eval_retrieval():
+    from evals import retrieval_rows, retrieval_summary
+    return StreamingResponse(_stream(retrieval_rows(), retrieval_summary), media_type="application/x-ndjson")
+
+
+@app.get("/eval/explain")
+def eval_explain():
+    from evals import explain_rows, explain_summary
+    rows = explain_rows(DATA["exceptions"], lambda e: enrich(e)["minutes_left"])
+    return StreamingResponse(_stream(rows, explain_summary), media_type="application/x-ndjson")
