@@ -4,3 +4,4 @@
 .models/
 *.mp3
 __pycache__/
+data/corrections.jsonl

@@ -41,13 +41,16 @@ Without keys everything still runs: retrieval is real, model steps run offline w
 | `GET /exceptions/{id}` | One exception |
 | `GET /eval/retrieval` | Streams the retrieval eval as NDJSON, one row per question, then recall@3, precision@3 and MRR. No model calls |
 | `GET /eval/explain` | Streams the end-to-end eval: every exception through `/explain`, compared with its expected outcome and top playbook section (`evals.py`) |
+| `POST /correct` `{"exception_id", "action", "verdict": "right"\|"wrong", "resolved_by"}` | Ops verdict on one suggested action, appended to `data/corrections.jsonl`; returns the updated audit |
+| `GET /audit` | Wrong rate per exception type against the kill switch, labelled eval cases collected, and the latest corrections |
+| `POST /audit/reset` | Demo only: drops live corrections, keeps the seeded history |
 | `POST /explain` `{"exception_id": "EXC-1"}` | Up to 3 suggested actions, each with a playbook section, a quote and the portal page to act on, or an abstention naming the field in doubt. Needs `ANTHROPIC_API_KEY` |
 
 How `/explain` decides (`explain.py`):
 
 `explain.py` is a LangGraph pipeline, `guard -> retrieve -> draft -> check_citations`, and any node can end the run with an abstention. The response carries the `path` taken and every `guard` rule with pass or fail.
 
-1. **Guard**, deterministic and before any model call: exception type "other" never gets a suggestion, and if the sources disagree on status (broker says hold, carrier says released) the system abstains and names the field in doubt. The later event is not treated as the winner.
+1. **Guard**, deterministic and before any model call: exception type "other" never gets a suggestion, suggestions stay off for any type whose kill switch has tripped (`audit.py`: more than 5% marked wrong by ops over at least 20 reviews, both assumed), and if the sources disagree on status (broker says hold, carrier says released) the system abstains and names the field in doubt. The later event is not treated as the winner.
 2. Retrieve from the resolution playbook (`docs/playbook/`, one file per section). If the top passage scores under **0.55**, abstain. The cutoff sits between the weakest case with a playbook answer (0.59) and the HS-code case that has none (0.48); six cases is a starting point, not a calibration.
 3. The XGBoost router (`router.py`) picks the model: under 1h left or a second open exception on the shipment asks for quality and gets Sonnet 5.5; everything else asks for cheap and fast and gets Haiku 5.5. The choice, its confidence and the reason come back in `routing`.
 4. Claude words up to 3 actions from the passages it is given, each citing a passage number and a quote.

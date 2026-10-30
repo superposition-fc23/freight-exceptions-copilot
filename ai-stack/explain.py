@@ -15,6 +15,7 @@ from typing import TypedDict
 
 from langgraph.graph import END, START, StateGraph
 
+from audit import THRESHOLD, killed
 from llm import ask
 from rag import retrieve
 
@@ -105,12 +106,19 @@ def guard(s: State) -> State:
         {"rule": "sources agree on status", "passed": len(statuses) == 1,
          "detail": ", ".join(f"{src['system']}: {src['status']}" for src in e["sources"])},
     ]
+    switched_off = killed(e["type"])
+    rules.append({"rule": "kill switch off for this type", "passed": not switched_off,
+                  "detail": f"wrong rate {switched_off['wrong_rate']:.1%} over {switched_off['reviewed']} reviews" if switched_off else None})
     out = _step(s, "guard", guard=rules)
     if not rules[0]["passed"]:
         out["result"] = abstain(e, 'Exception type "other" is never auto-suggested', "exception type")
     elif not rules[1]["passed"]:
         out["result"] = abstain(e, f"Sources disagree ({rules[1]['detail']}); not choosing between them",
                                 FIELD_FOR_TYPE.get(e["type"], "status"))
+    elif switched_off:
+        out["result"] = abstain(e, f"Suggestions for {e['type'].replace('_', ' ')} are switched off: ops marked "
+                                   f"{switched_off['wrong_rate']:.1%} of them wrong, over the {THRESHOLD:.0%} kill switch",
+                                "action")
     return out
 
 

@@ -113,3 +113,36 @@ def eval_explain():
     from evals import explain_rows, explain_summary
     rows = explain_rows(DATA["exceptions"], lambda e: enrich(e)["minutes_left"])
     return StreamingResponse(_stream(rows, explain_summary), media_type="application/x-ndjson")
+
+
+class CorrectRequest(BaseModel):
+    exception_id: str
+    action: str
+    verdict: str
+    resolved_by: str = ""
+
+
+@app.post("/correct")
+def correct(req: CorrectRequest):
+    """Ops marks one suggested action right or wrong and records what actually resolved it (R6)."""
+    import audit
+    try:
+        row = audit.record(find(req.exception_id), req.action, req.verdict, req.resolved_by, now=NOW)
+    except ValueError as err:
+        raise HTTPException(422, str(err))
+    return {"recorded": row, "audit": audit.summary()}
+
+
+@app.get("/audit")
+def audit_summary():
+    """Wrong rate per exception type against the kill switch, and the latest corrections (N3)."""
+    import audit
+    return audit.summary()
+
+
+@app.post("/audit/reset")
+def audit_reset():
+    """Demo only: drop live corrections and keep the seeded history."""
+    import audit
+    audit.reset()
+    return audit.summary()
