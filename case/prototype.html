@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototype</title>
+<style>
+:root{
+  --bg:#f6f7f9; --surface:#fff; --surface-2:#eceff4; --surface-3:#e2e7ee;
+  --fg:#141c24; --fg-2:#46525f; --fg-3:#6f7d8c;
+  --rule:#d5dce4; --rule-2:#bfc9d4;
+  --accent:#0f5f8f; --accent-soft:#ddeaf4;
+  --ok:#1b6b47; --ok-soft:#e2f0e9;
+  --warn:#8a5a00; --warn-soft:#f8eed6;
+  --stop:#9e2b2b; --stop-soft:#f8e6e6;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --body:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  --serif:Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f141a; --surface:#161d25; --surface-2:#1d2630; --surface-3:#26313d;
+  --fg:#e7edf3; --fg-2:#a9b6c3; --fg-3:#7e8d9b;
+  --rule:#2a3542; --rule-2:#3a4756;
+  --accent:#5fb2e0; --accent-soft:#0f2a3c;
+  --ok:#62c795; --ok-soft:#142c21;
+  --warn:#dcb155; --warn-soft:#2d2514;
+  --stop:#e5817d; --stop-soft:#2f1a1a;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f141a; --surface:#161d25; --surface-2:#1d2630; --surface-3:#26313d;
+  --fg:#e7edf3; --fg-2:#a9b6c3; --fg-3:#7e8d9b;
+  --rule:#2a3542; --rule-2:#3a4756; --accent:#5fb2e0; --accent-soft:#0f2a3c;
+  --ok:#62c795; --ok-soft:#142c21; --warn:#dcb155; --warn-soft:#2d2514;
+  --stop:#e5817d; --stop-soft:#2f1a1a; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+header.top{background:var(--surface);border-bottom:1px solid var(--rule);padding:28px 0 22px}
+.kick{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg-3);margin:0 0 10px}
+h1{font-family:var(--serif);font-size:clamp(26px,4.5vw,38px);line-height:1.1;margin:0 0 10px}
+.sub{color:var(--fg-2);margin:0;max-width:62ch}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{font-family:var(--mono);font-size:11px;padding:4px 9px;border:1px solid var(--rule-2);border-radius:3px;color:var(--fg-2)}
+nav.toc{position:sticky;top:0;z-index:30;background:var(--surface);border-bottom:1px solid var(--rule)}
+nav.toc ol{list-style:none;display:flex;margin:0;padding:0;overflow-x:auto}
+nav.toc a{display:block;white-space:nowrap;padding:11px 13px;font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--fg-3);text-decoration:none;border-bottom:2px solid transparent}
+nav.toc a:hover{color:var(--accent);border-bottom-color:var(--accent)}
+section{border-bottom:1px solid var(--rule);padding:38px 0}
+.sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+.sn{font-family:var(--mono);font-size:12px;color:var(--accent)}
+h2{font-family:var(--serif);font-size:clamp(20px,3vw,27px);line-height:1.2;margin:0}
+.lede{color:var(--fg-2);margin:0 0 22px;max-width:68ch}
+h3{font-family:var(--serif);font-size:18px;margin:26px 0 8px}
+p{margin:0 0 13px;max-width:72ch}
+ul,ol{margin:0 0 14px;padding-left:22px;max-width:72ch}
+li{margin-bottom:6px}
+code,.mono{font-family:var(--mono);font-size:.88em}
+code{background:var(--surface-2);padding:1px 5px;border-radius:3px}
+.note{border-left:3px solid var(--rule-2);padding:2px 0 2px 16px;margin:18px 0;color:var(--fg-2);max-width:72ch}
+.note.ok{border-left-color:var(--ok)} .note.warn{border-left-color:var(--warn)} .note.stop{border-left-color:var(--stop)}
+.note .tag{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-3);margin-bottom:4px}
+.tbl{overflow-x:auto;margin:18px 0;border:1px solid var(--rule);border-radius:4px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:560px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--fg-3);background:var(--surface-2);font-weight:500;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+td.num{font-family:var(--mono);white-space:nowrap}
+.pill{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:2px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.stop{background:var(--stop-soft);color:var(--stop)}
+.pill.new{background:var(--accent-soft);color:var(--accent)}
+figure{margin:22px 0;border:1px solid var(--rule);border-radius:5px;background:var(--surface);padding:18px}
+figcaption{font-size:13px;color:var(--fg-2);margin-top:10px}
+svg{display:block;max-width:100%;height:auto}
+svg text{font-family:var(--mono)}
+svg .nd{fill:var(--surface-2);stroke:var(--rule-2)}
+svg .nd-a{fill:var(--accent-soft);stroke:var(--accent)}
+svg .nd-w{fill:var(--warn-soft);stroke:var(--warn)}
+svg .lbl{font-size:11px;fill:var(--fg);text-anchor:middle}
+svg .sub-lbl{font-size:9px;fill:var(--fg-3);text-anchor:middle}
+svg .edge{stroke:var(--rule-2);fill:none;stroke-width:1.2}
+svg .edge-d{stroke:var(--rule-2);fill:none;stroke-width:1.2;stroke-dasharray:3 3}
+svg .edge-lbl{font-size:9px;fill:var(--fg-3)}
+
+/* ---------- PROTOTYPE SHELL ---------- */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tab{font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;padding:7px 12px;border:1px solid var(--rule-2);border-radius:3px;background:var(--surface);color:var(--fg-2);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.screen{display:none}
+.screen.on{display:block}
+.mock{border:1px solid var(--rule-2);border-radius:6px;overflow:hidden;background:var(--surface);font-size:13px}
+.mock-bar{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface-3);border-bottom:1px solid var(--rule-2)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--rule-2)}
+.mock-url{font-family:var(--mono);font-size:11px;color:var(--fg-3)}
+.mock-top{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--rule);background:var(--surface)}
+.brand{font-weight:600;font-size:14px}
+.mock-top .right{display:flex;gap:8px;align-items:center}
+.btn{font-size:12px;padding:5px 11px;border-radius:4px;border:1px solid var(--rule-2);background:var(--surface);color:var(--fg-2);cursor:pointer}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.mock-body{display:grid;grid-template-columns:170px 1fr 290px;min-height:330px}
+@media (max-width:860px){.mock-body{grid-template-columns:1fr}}
+.side{border-right:1px solid var(--rule);background:var(--surface-2);padding:12px 0}
+.side-i{padding:7px 14px;font-size:12.5px;color:var(--fg-2);cursor:pointer}
+.side-i.on{background:var(--accent-soft);color:var(--accent);font-weight:600;border-left:2px solid var(--accent)}
+.side-h{padding:6px 14px;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-3);margin-top:8px}
+.main{padding:0;min-width:0;overflow-x:auto}
+.main-h{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--rule)}
+.main-h h4{margin:0;font-size:14px}
+.filters{display:flex;gap:6px;flex-wrap:wrap;padding:9px 14px;border-bottom:1px solid var(--rule);background:var(--surface-2)}
+.f{font-family:var(--mono);font-size:10.5px;padding:3px 8px;border:1px solid var(--rule-2);border-radius:12px;color:var(--fg-3);cursor:pointer;white-space:nowrap}
+.f.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+table.grid{display:table;min-width:0;width:100%;font-size:12.5px}
+table.grid th{padding:7px 12px;font-size:9.5px}
+table.grid td{padding:8px 12px;border-bottom:1px solid var(--rule)}
+tr.r{cursor:pointer}
+tr.r:hover td{background:var(--surface-2)}
+tr.r.sel td{background:var(--accent-soft)}
+tr.r.flag td:first-child{box-shadow:inset 3px 0 0 var(--stop)}
+tr.r.soft td:first-child{box-shadow:inset 3px 0 0 var(--warn)}
+.panel{border-left:1px solid var(--rule);padding:14px;background:var(--surface)}
+.panel h5{margin:0 0 3px;font-size:14px}
+.panel .meta{font-family:var(--mono);font-size:10.5px;color:var(--fg-3);margin-bottom:12px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:5px 10px;font-size:12.5px;margin-bottom:12px}
+.kv dt{color:var(--fg-3)}
+.kv dd{margin:0}
+.conf{height:5px;border-radius:3px;background:var(--surface-3);overflow:hidden;margin:3px 0 2px}
+.conf > i{display:block;height:100%;background:var(--ok)}
+.conf.low > i{background:var(--warn)}
+.conf.bad > i{background:var(--stop)}
+.hint{font-size:11px;color:var(--fg-3)}
+.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--rule)}
+.banner{padding:9px 14px;font-size:12.5px;border-bottom:1px solid var(--rule)}
+.banner.warn{background:var(--warn-soft);color:var(--warn)}
+.banner.stop{background:var(--stop-soft);color:var(--stop)}
+.banner.ok{background:var(--ok-soft);color:var(--ok)}
+.trail{font-family:var(--mono);font-size:11px;line-height:1.7;color:var(--fg-2)}
+.trail b{color:var(--fg)}
+footer{padding:28px 0 46px;color:var(--fg-3);font-size:13px}
+@media print{nav.toc{display:none}section{page-break-inside:avoid}.screen{display:block!important}}
+</style>
+<!-- Tailwind for new UI. Preflight is off so the styles above stay intact; colors map to the same variables, so dark mode still works. -->
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>
+tailwind.config = {
+  corePlugins: { preflight: false },
+  theme: { extend: {
+    colors: {
+      bg: 'var(--bg)', surface: 'var(--surface)', 'surface-2': 'var(--surface-2)', 'surface-3': 'var(--surface-3)',
+      fg: 'var(--fg)', 'fg-2': 'var(--fg-2)', 'fg-3': 'var(--fg-3)', rule: 'var(--rule)', 'rule-2': 'var(--rule-2)',
+      accent: 'var(--accent)', 'accent-soft': 'var(--accent-soft)', ok: 'var(--ok)', 'ok-soft': 'var(--ok-soft)',
+      warn: 'var(--warn)', 'warn-soft': 'var(--warn-soft)', stop: 'var(--stop)', 'stop-soft': 'var(--stop-soft)',
+    },
+    fontFamily: { body: 'var(--body)', mono: 'var(--mono)', serif: 'var(--serif)' },
+  } },
+};
+</script>
+<style>
+/* Full-width presentation mode for screen share: bigger canvas, bigger type than the report. */
+.wrap{max-width:1440px}
+body{font-size:17px}
+.mock{font-size:15px}
+.mock-body{grid-template-columns:210px 1fr 380px;min-height:520px}
+table.grid{font-size:14.5px}
+table.grid th{font-size:11px}
+.panel h5{font-size:16px}
+.kv{font-size:14.5px}
+.tab{font-size:13px;padding:9px 16px}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <p class="kick">Prototype &middot; <a href="index.html">back to the case artifact</a></p>
+  <h1>Shipment exceptions dashboard</h1>
+  <p class="sub">The consignee planner sees every open exception as it happens and is sent to the portal page where they act on it. Ops is the backstop for anything the dashboard abstains on, and the source of truth for whether a suggestion was right.</p>
+</div></header>
+
+<main class="wrap" style="padding-top:24px;padding-bottom:48px">
+  <div class="tabs" role="tablist">
+    <button class="tab" data-screen="s-board" aria-selected="true">1 &middot; Normal: exceptions board</button>
+    <button class="tab" data-screen="s-unsure" aria-selected="false">2 &middot; Uncertain: system abstains</button>
+    <button class="tab" data-screen="s-audit" aria-selected="false">3 &middot; Correction and audit (ops)</button>
+  </div>
+
+  <!-- ===================== screen 1: normal ===================== -->
+  <div class="screen on" id="s-board">
+    <p class="text-sm text-fg-2 mt-0 mb-3">Planner view. Four columns, one card per shipment per exception type (R1). The selected card shows up to 3 suggested actions, each with its cited playbook passage and a portal link (R3, N1, N2).</p>
+    <div class="mock">
+      <div class="mock-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="mock-url">portal / exceptions</span></div>
+      <div class="mock-top">
+        <span class="brand">Exceptions <span class="font-mono text-xs text-fg-3 font-normal">&middot; your shipments, inbound</span></span>
+        <div class="right"><span class="pill new">7 open</span><span class="pill stop">1 unconfirmed</span><span class="hint">refreshed 2 min ago</span></div>
+      </div>
+      <div class="mock-body" style="grid-template-columns:1fr 400px">
+        <div class="main p-3">
+          <div class="grid grid-cols-4 gap-3">
+
+            <!-- Column: customs hold -->
+            <div class="bg-surface-2 border border-rule rounded p-2">
+              <div class="flex justify-between items-center px-1 mb-2"><span class="font-mono text-xs uppercase tracking-wider text-fg-2">Customs hold</span><span class="pill stop">2</span></div>
+              <div class="bg-accent-soft border-2 border-accent rounded p-2 mb-2 cursor-pointer">
+                <div class="flex justify-between items-baseline"><b class="font-mono text-sm">SHP-20417</b><span class="font-mono text-xs text-fg-3">age 6h</span></div>
+                <div class="text-sm text-fg">2 of 4 containers</div>
+                <div class="text-xs text-fg-3">Los Angeles &middot; entry under exam</div>
+                <div class="mt-1"><span class="pill warn">also missed vessel</span></div>
+                <div class="text-xs text-fg-3 mt-1 font-mono">src: customs broker &middot; confirmed 09:12</div>
+              </div>
+              <div class="bg-surface border border-rule rounded p-2 mb-2">
+                <div class="flex justify-between items-baseline"><b class="font-mono text-sm">SHP-20388</b><span class="font-mono text-xs text-fg-3">age 1d 3h</span></div>
+                <div class="text-sm text-fg">1 of 1 containers</div>
+                <div class="text-xs text-fg-3">Long Beach &middot; ISF query</div>
+                <div class="mt-1"><span class="pill stop">unconfirmed</span></div>
+                <div class="text-xs text-fg-3 mt-1 font-mono">src: broker vs carrier disagree</div>
+              </div>
+            </div>
+
+            <!-- Column: missed vessel -->
+            <div class="bg-surface-2 border border-rule rounded p-2">
+              <div class="flex justify-between items-center px-1 mb-2"><span class="font-mono text-xs uppercase tracking-wider text-fg-2">Missed vessel</span><span class="pill stop">2</span></div>
+              <div class="bg-surface border border-rule rounded p-2 mb-2">
+                <div class="flex justify-between items-baseline"><b class="font-mono text-sm">SHP-20417</b><span class="font-mono text-xs text-fg-3">age 2d 1h</span></div>
+                <div class="text-sm text-fg">2 of 4 containers rolled</div>
+                <div class="text-xs text-fg-3">Shanghai &middot; next sailing +7 days</div>
+                <div class="mt-1"><span class="pill warn">also customs hold</span></div>
+                <div class="text-xs text-fg-3 mt-1 font-mono">src: carrier EDI &middot; confirmed 07:40</div>
+              </div>
+              <div class="bg-surface border border-rule rounded p-2 mb-2">
+                <div class="flex justify-between items-baseline"><b class="font-mono text-sm">SHP-20431</b><span class="font-mono text-xs text-fg-3">age 4h</span></div>
+                <div class="text-sm text-fg">3 of 3 containers</div>
+                <div class="text-xs text-fg-3">Ningbo &middot; cut off missed</div>
+                <div class="text-xs text-fg-3 mt-1 font-mono">src: carrier EDI &middot; confirmed 11:05</div>
+              </div>
+            </div>
+
+            <!-- Column: document error -->
+            <div class="bg-surface-2 border border-rule rounded p-2">
+              <div class="flex justify-between items-center px-1 mb-2"><span class="font-mono text-xs uppercase tracking-wider text-fg-2">Document error</span><span class="pill warn">2</span></div>
+              <div class="bg-surface border border-rule rounded p-2 mb-2">
+                <div class="flex justify-between items-baseline"><b class="font-mono text-sm">SHP-20402</b><span class="font-mono text-xs text-fg-3">age 9h</span></div>
+                <div class="text-sm text-fg">2 of 2 containers</div>
+                <div class="text-xs text-fg-3">Packing list weight mismatch</div>
+                <div class="mt-1"><span class="pill new">supplier to fix</span></div>
+                <div class="text-xs text-fg-3 mt-1 font-mono">src: doc check &middot; confirmed 08:30</div>
+              </div>
+              <div class="bg-surface border border-rule rounded p-2 mb-2">
+                <div class="flex justify-between items-baseline"><b class="font-mono text-sm">SHP-20415</b><span class="font-mono text-xs text-fg-3">age 1d</span></div>
+                <div class="text-sm text-fg">1 of 2 containers</div>
+                <div class="text-xs text-fg-3">Customs declaration, HS code missing</div>
+                <div class="mt-1"><span class="pill warn">ops will advise</span></div>
+                <div class="text-xs text-fg-3 mt-1 font-mono">src: doc check &middot; confirmed 10:02</div>
+              </div>
+            </div>
+
+            <!-- Column: other -->
+            <div class="bg-surface-2 border border-rule rounded p-2">
+              <div class="flex justify-between items-center px-1 mb-2"><span class="font-mono text-xs uppercase tracking-wider text-fg-2">Other</span><span class="pill new">1</span></div>
+              <div class="bg-surface border border-rule rounded p-2 mb-2">
+                <div class="flex justify-between items-baseline"><b class="font-mono text-sm">SHP-20398</b><span class="font-mono text-xs text-fg-3">age 3h</span></div>
+                <div class="text-sm text-fg">4 of 4 containers</div>
+                <p class="text-xs text-fg-2 mt-1 mb-1 leading-snug">Supplier reports cargo ready date moved from 3 Nov to 14 Nov after a production line stoppage. The must-arrive-by date on the PO is 28 Nov, which the new ready date no longer supports on the booked sailing. Supplier has asked whether a partial shipment of the finished units is acceptable and whether the remaining units can follow on the next sailing, and has attached a revised production plan that &hellip;</p>
+                <div class="font-mono text-xs text-warn">capped at 150 words: truncated, full text in log</div>
+                <div class="mt-1"><span class="pill warn">ops will advise</span></div>
+                <div class="text-xs text-fg-3 mt-1 font-mono">src: ops note &middot; confirmed 10:48</div>
+              </div>
+              <p class="text-xs text-fg-3 px-1 m-0">Other never gets a suggested action; it routes to ops (R4).</p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Detail panel for the selected card -->
+        <div class="panel">
+          <h5>SHP-20417 &middot; customs hold</h5>
+          <div class="meta">Shanghai to Los Angeles &middot; 4 containers &middot; 2 open exceptions</div>
+          <dl class="kv">
+            <dt>Affected</dt><dd>2 of 4 containers <span class="font-mono text-xs text-fg-3">TGHU 418220-6, TGHU 418231-4</span></dd>
+            <dt>Status</dt><dd><span class="pill stop">hold</span> entry under exam</dd>
+            <dt>Source</dt><dd>Customs broker</dd>
+            <dt>Last confirmed</dt><dd class="font-mono">09:12 today</dd>
+            <dt>Also open</dt><dd>Missed vessel on the other 2 containers, now a later sailing</dd>
+          </dl>
+          <div class="bg-warn-soft text-warn text-xs rounded px-2 py-1 mb-3">Grain: the hold is on the entry, the roll is on 2 containers. Same shipment, two ETAs.</div>
+
+          <div class="font-mono text-xs uppercase tracking-wider text-fg-3 mb-2">Suggested actions (up to 3)</div>
+          <ol class="pl-5 m-0">
+            <li class="mb-3">
+              <div class="text-sm text-fg font-semibold">Upload the commercial invoice the exam requested</div>
+              <div class="text-xs text-fg-2 border-l-2 border-rule pl-2 my-1"><span class="font-mono text-fg-3">Playbook &sect;4.2, customs exam:</span> "Where an exam requests supporting invoices, upload them against the entry within one business day."</div>
+              <a href="#" class="text-xs text-accent">Go to portal page: Documents &rarr;</a>
+            </li>
+            <li class="mb-3">
+              <div class="text-sm text-fg font-semibold">Confirm the delivery appointment can move</div>
+              <div class="text-xs text-fg-2 border-l-2 border-rule pl-2 my-1"><span class="font-mono text-fg-3">Playbook &sect;4.5, held cargo:</span> "Release the trucking appointment for held containers to avoid failed pickup fees."</div>
+              <a href="#" class="text-xs text-accent">Go to portal page: Delivery &rarr;</a>
+            </li>
+            <li class="mb-2">
+              <div class="text-sm text-fg font-semibold">Review storage charges while held</div>
+              <div class="text-xs text-fg-2 border-l-2 border-rule pl-2 my-1"><span class="font-mono text-fg-3">Playbook &sect;7.1, demurrage:</span> "Check free time remaining at the terminal for any container on hold."</div>
+              <a href="#" class="text-xs text-accent">Go to portal page: Charges &rarr;</a>
+            </li>
+          </ol>
+          <div class="hint">Links only. The dashboard takes no action in the portal (N1). No suggestion appears without a cited passage (N2).</div>
+        </div>
+      </div>
+    </div>
+    <p class="text-xs text-fg-3 mt-2">Illustrative: all shipment IDs, container numbers, ports, ages, times and playbook passages are made up for the prototype. Assumed: playbook section numbers and wording, the "supplier to fix" tag, and the portal page names.</p>
+  </div>
+
+  <!-- ===================== screen 2: uncertain ===================== -->
+  <div class="screen" id="s-unsure">
+    <div class="bg-stop-soft text-stop border border-rule rounded px-4 py-3 mb-3">
+      <b>This is the safety screen.</b> When the system is not sure, it says which field it doubts, shows no suggested action, and hands the card to ops. It never picks one source over another (R4, R5).
+    </div>
+    <div class="mock">
+      <div class="mock-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="mock-url">portal / exceptions / SHP-20388</span></div>
+      <div class="mock-top">
+        <span class="brand">Exceptions <span class="font-mono text-xs text-fg-3 font-normal">&middot; cards the dashboard is not sure about</span></span>
+        <div class="right"><span class="pill stop">3 abstained</span></div>
+      </div>
+      <div class="banner stop"><b>Unconfirmed: customs status.</b> Broker says <b>Hold</b>, carrier says <b>Released</b>. We are not choosing between them. Ops has been asked to confirm.</div>
+      <div class="mock-body" style="grid-template-columns:1fr 420px">
+        <div class="main">
+          <div class="main-h"><h4>Abstained cards</h4><span class="hint">routed to ops</span></div>
+          <table class="grid">
+            <thead><tr><th>Shipment</th><th>Column</th><th>Field in doubt</th><th>Why no suggestion</th><th>State</th></tr></thead>
+            <tbody>
+              <tr class="r sel flag"><td class="font-mono">SHP-20388</td><td>Customs hold</td><td><b>customs status</b></td><td>Status unconfirmed: sources disagree</td><td><span class="pill warn">ops will advise</span></td></tr>
+              <tr class="r soft"><td class="font-mono">SHP-20415</td><td>Document error</td><td><b>action</b></td><td>Retrieval below confidence cutoff</td><td><span class="pill warn">ops will advise</span></td></tr>
+              <tr class="r soft"><td class="font-mono">SHP-20398</td><td>Other</td><td><b>exception type</b></td><td>"Other" is never auto-suggested</td><td><span class="pill warn">ops will advise</span></td></tr>
+            </tbody>
+          </table>
+
+          <div class="p-4">
+            <div class="font-mono text-xs uppercase tracking-wider text-fg-3 mb-2">SHP-20388: what each source says about customs status</div>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="border border-rule rounded p-3 bg-surface">
+                <div class="flex justify-between"><b>Customs broker</b><span class="pill stop">hold</span></div>
+                <div class="text-sm text-fg-2 mt-1">ISF query open on the entry</div>
+                <div class="font-mono text-xs text-fg-3 mt-1">event 08:05 &middot; last confirmed 08:05</div>
+              </div>
+              <div class="border border-rule rounded p-3 bg-surface">
+                <div class="flex justify-between"><b>Carrier</b><span class="pill ok">released</span></div>
+                <div class="text-sm text-fg-2 mt-1">Container available for pickup</div>
+                <div class="font-mono text-xs text-fg-3 mt-1">event 10:20 &middot; last confirmed 10:20</div>
+              </div>
+            </div>
+            <p class="text-sm text-fg-2 mt-3 mb-0">The later event is not treated as the winner: a carrier release can precede a customs hold being lifted, so "most recent" is the wrong rule here.</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h5>SHP-20388 &middot; customs hold</h5>
+          <div class="meta">Long Beach &middot; 1 of 1 containers &middot; age 1d 3h</div>
+          <div class="bg-stop-soft text-stop rounded p-3 mb-3">
+            <div class="font-mono text-xs uppercase tracking-wider mb-1">Field in doubt</div>
+            <div class="text-base"><b>customs status</b></div>
+            <div class="text-sm">broker: Hold &middot; carrier: Released</div>
+          </div>
+          <div class="border border-dashed border-rule-2 rounded p-3 mb-3">
+            <div class="font-mono text-xs uppercase tracking-wider text-fg-3 mb-1">Suggested actions</div>
+            <div class="text-sm text-fg-2"><b>Withheld.</b> Status unconfirmed, so any action we suggest could be the wrong one. Suggestions return once ops confirms the status.</div>
+          </div>
+          <div class="bg-warn-soft text-warn rounded p-3 mb-3">
+            <div class="font-semibold">Ops will advise</div>
+            <div class="text-sm">Routed to ops at 10:21. You do not need to contact anyone.</div>
+          </div>
+          <dl class="kv">
+            <dt>Routed</dt><dd class="font-mono">10:21 today</dd>
+            <dt>Ops target</dt><dd>reply within 1 hour <span class="text-xs text-fg-3">(assumed)</span></dd>
+          </dl>
+          <div class="actions">
+            <a href="#" class="btn">View source events</a>
+            <a href="#" class="btn">Go to portal page: Shipment &rarr;</a>
+          </div>
+          <div class="hint mt-2">Second case in the list: SHP-20415 retrieval top score 0.41 against a cutoff of 0.60 (both assumed), so no action is shown there either.</div>
+        </div>
+      </div>
+    </div>
+    <p class="text-xs text-fg-3 mt-2">Illustrative: shipment IDs, ports, times, sources and retrieval scores are made up. Assumed: the confidence cutoff value, the ops reply target, and the "most recent event does not win" rule.</p>
+  </div>
+
+  <!-- ===================== screen 3: correction and audit ===================== -->
+  <div class="screen" id="s-audit">
+    <p class="text-sm text-fg-2 mt-0 mb-3">Internal ops view. Ops marks each suggestion right or wrong and records the action that actually resolved it (R6). That record is the eval set, and it feeds the kill switch (N3).</p>
+    <div class="mock">
+      <div class="mock-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="mock-url">ops / exceptions / review</span></div>
+      <div class="mock-top">
+        <span class="brand">Suggestion review <span class="font-mono text-xs text-fg-3 font-normal">&middot; internal ops</span></span>
+        <div class="right"><span class="pill new">14 to review</span><span class="pill warn">1 type near kill threshold</span></div>
+      </div>
+      <div class="mock-body">
+        <div class="side">
+          <div class="side-h">Ops</div>
+          <div class="side-i on">Review queue</div>
+          <div class="side-i">Abstained cards</div>
+          <div class="side-i">Kill switch</div>
+          <div class="side-h">Eval set</div>
+          <div class="side-i">Added this week</div>
+        </div>
+        <div class="main">
+          <div class="main-h"><h4>Suggestions to review</h4><span class="hint">oldest first</span></div>
+          <table class="grid">
+            <thead><tr><th>Shipment</th><th>Type</th><th>Suggestion shown</th><th>Planner followed</th><th>Verdict</th></tr></thead>
+            <tbody>
+              <tr class="r sel flag"><td class="font-mono">SHP-20431</td><td>Missed vessel</td><td>Approve rebooking on next sailing</td><td>yes</td><td><span class="pill stop">wrong</span></td></tr>
+              <tr class="r"><td class="font-mono">SHP-20417</td><td>Customs hold</td><td>Upload commercial invoice</td><td>yes</td><td><span class="pill ok">correct</span></td></tr>
+              <tr class="r"><td class="font-mono">SHP-20402</td><td>Document error</td><td>Request corrected packing list</td><td>no</td><td><span class="pill new">to review</span></td></tr>
+              <tr class="r"><td class="font-mono">SHP-20409</td><td>Missed vessel</td><td>Replan downstream delivery</td><td>yes</td><td><span class="pill new">to review</span></td></tr>
+            </tbody>
+          </table>
+
+          <div class="p-4">
+            <div class="font-mono text-xs uppercase tracking-wider text-fg-3 mb-2">Kill switch (N3): wrong rate per exception type, rolling 7 days</div>
+            <table class="grid border border-rule">
+              <thead><tr><th>Exception type</th><th>Reviewed</th><th>Marked wrong</th><th>Wrong rate</th><th>vs 5% threshold</th><th>Suggestions</th></tr></thead>
+              <tbody>
+                <tr><td>Customs hold</td><td class="font-mono">112</td><td class="font-mono">2</td><td class="font-mono">1.8%</td><td><div class="conf"><i style="width:36%"></i></div></td><td><span class="pill ok">on</span></td></tr>
+                <tr><td>Missed vessel</td><td class="font-mono">87</td><td class="font-mono">4</td><td class="font-mono text-warn"><b>4.6%</b></td><td><div class="conf low"><i style="width:92%"></i></div><span class="hint">1 more wrong trips it</span></td><td><span class="pill warn">on, watch</span></td></tr>
+                <tr><td>Document error</td><td class="font-mono">69</td><td class="font-mono">2</td><td class="font-mono">2.9%</td><td><div class="conf"><i style="width:58%"></i></div></td><td><span class="pill ok">on</span></td></tr>
+                <tr><td>Other</td><td class="font-mono">n/a</td><td class="font-mono">n/a</td><td class="font-mono">n/a</td><td class="hint">never suggested</td><td><span class="pill new">ops only</span></td></tr>
+              </tbody>
+            </table>
+            <p class="text-xs text-fg-3 mt-2 mb-0">Above 5%: suggestions for that type switch off, its cards route to ops, and ops is alerted within 1 hour. Threshold, window and alert time are assumed, set from baseline.</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h5>SHP-20431 &middot; missed vessel</h5>
+          <div class="meta">Ningbo &middot; 3 of 3 containers &middot; suggestion shown 11:07</div>
+          <dl class="kv">
+            <dt>Suggested</dt><dd>Approve rebooking on next sailing</dd>
+            <dt>Cited</dt><dd class="text-xs">Playbook &sect;3.1, rolled cargo</dd>
+            <dt>Retrieval</dt><dd><div class="conf"><i style="width:74%"></i></div><span class="hint">top score 0.74</span></dd>
+          </dl>
+          <div class="font-mono text-xs uppercase tracking-wider text-fg-3 mb-1">Verdict</div>
+          <div class="flex gap-2 mb-3">
+            <span class="btn">Correct</span>
+            <span class="btn bg-stop-soft text-stop border-stop font-semibold">Wrong</span>
+          </div>
+          <div class="font-mono text-xs uppercase tracking-wider text-fg-3 mb-1">Action that actually resolved it</div>
+          <select class="w-full text-sm p-1 mb-2 bg-surface text-fg border border-rule-2 rounded">
+            <option>Split shipment: 2 containers on alternate carrier, 1 next sailing</option>
+            <option>Approve rebooking on next sailing</option>
+            <option>Replan downstream delivery</option>
+            <option>Other (type below)</option>
+          </select>
+          <input class="w-full text-sm p-1 mb-3 bg-surface text-fg border border-rule-2 rounded" value="Must-arrive-by needed alternate carrier for 2 containers">
+          <div class="actions mt-0 pt-2"><span class="btn pri">Save correction</span></div>
+
+          <div class="font-mono text-xs uppercase tracking-wider text-fg-3 mt-4 mb-1">Audit trail</div>
+          <div class="trail bg-surface-2 rounded p-2">
+            <div>11:07 &nbsp;suggestion shown to planner, cited &sect;3.1</div>
+            <div>11:19 &nbsp;planner followed link to Booking page</div>
+            <div>14:32 &nbsp;<b>ops annotator R. Okafor</b> marked <b>wrong</b></div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;before: approve rebooking on next sailing</div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;after: split shipment, alternate carrier</div>
+            <div>14:32 &nbsp;missed vessel wrong rate 3.5% to 4.6%</div>
+            <div>14:32 &nbsp;<b>added to eval set for next release</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-xs text-fg-3 mt-2">Illustrative: shipment IDs, annotator name, times, counts, wrong rates and retrieval scores are made up. Assumed: the 5% threshold, the rolling 7-day window and the 1-hour alert (as stated in N3), and that "planner followed" is logged from the link click.</p>
+  </div>
+</main>
+
+<script>
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click', function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.setAttribute('aria-selected','false')});
+    t.setAttribute('aria-selected','true');
+    document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on')});
+    var el=document.getElementById(t.dataset.screen); if(el) el.classList.add('on');
+  });
+});
+document.querySelectorAll('tr.r').forEach(function(r){
+  r.addEventListener('click', function(){
+    var tb=r.closest('tbody');
+    tb.querySelectorAll('tr.r').forEach(function(x){x.classList.remove('sel')});
+    r.classList.add('sel');
+  });
+});
+</script>
+</body>
+</html>
