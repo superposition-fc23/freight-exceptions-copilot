@@ -22,7 +22,7 @@ Importers find out that a shipment has a problem (a customs hold, a missed vesse
 ## How a suggestion is decided
 
 ```mermaid
-flowchart LR
+flowchart TD
     board[Exceptions board] -->|open a card| api[POST /explain]
     api --> guard{Guard<br/>deterministic}
     guard -->|type is other,<br/>sources disagree, or<br/>kill switch on| abstain[Abstain:<br/>name the field in doubt,<br/>route to ops]
