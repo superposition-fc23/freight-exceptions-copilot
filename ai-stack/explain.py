@@ -49,12 +49,29 @@ def _norm(s):
     return re.sub(r"\s+", " ", s).strip().lower()
 
 
+def pick_model(e, minutes_left=None):
+    """Ask the XGBoost router for a model. Urgent or compound exceptions need reasoning across
+    passages, so they ask for quality; routine ones ask for cheap and fast."""
+    from router import route
+    urgent = minutes_left is not None and minutes_left < 60
+    compound = any(t.startswith("also ") for t in e.get("tags", []))
+    if urgent or compound:
+        features = dict(task="reason", modality="text", cost=2, latency=1, quality=2, input_k=1)
+        why = " and ".join(w for w, on in [("under 1h left", urgent), ("a second open exception on the shipment", compound)] if on)
+    else:
+        features = dict(task="summarize", modality="text", cost=2, latency=2, quality=1, input_k=1)
+        why = "routine: one exception, time to spare"
+    model, confidence, top = route(**features)
+    return {"model": model, "confidence": round(confidence, 2), "reason": why, "features": features,
+            "alternatives": [{"model": m, "p": round(p, 2)} for m, p in top]}
+
+
 def abstain(e, reason, field, retrieval=None):
     return {"exception_id": e["id"], "status": "abstained", "reason": reason, "field_in_doubt": field,
             "actions": [], "retrieval": retrieval}
 
 
-def explain(e, model_key="haiku-5.5"):
+def explain(e, minutes_left=None):
     if e["type"] == "other":
         return abstain(e, 'Exception type "other" is never auto-suggested', "exception type")
 
@@ -71,11 +88,12 @@ def explain(e, model_key="haiku-5.5"):
     prompt = (f"Exception: {e['type'].replace('_', ' ')} on {e['shipment']}, {e['containers']['affected']} of "
               f"{e['containers']['total']} containers. {e['detail']}. Deadline: {e['deadline_reason']}.\n\n"
               f"Playbook passages:\n{context}")
-    raw = ask(model_key, prompt, system=SYSTEM, max_tokens=1500, effort="low")
+    routing = pick_model(e, minutes_left)
+    raw = ask(routing["model"], prompt, system=SYSTEM, max_tokens=1500, effort="low")
     try:
         proposed = json.loads(raw[raw.index("{"):raw.rindex("}") + 1])["actions"]
     except (ValueError, KeyError):
-        return abstain(e, "Model reply was not valid JSON", "action", retrieval)
+        return {**abstain(e, "Model reply was not valid JSON", "action", retrieval), "routing": routing}
 
     by_n = {p["n"]: p for p in passages}
     actions, dropped = [], 0
@@ -88,9 +106,10 @@ def explain(e, model_key="haiku-5.5"):
         actions.append({"action": a["action"], "citation": {"section": p["section"], "quote": a["quote"]},
                         "portal_page": p["portal_page"]})
     if not actions:
-        return abstain(e, "No suggested action could be tied to a playbook passage", "action", retrieval)
+        return {**abstain(e, "No suggested action could be tied to a playbook passage", "action", retrieval),
+                "routing": routing}
     return {"exception_id": e["id"], "status": "suggested", "actions": actions[:MAX_ACTIONS],
-            "dropped_uncited": dropped, "model": model_key, "retrieval": retrieval}
+            "dropped_uncited": dropped, "routing": routing, "retrieval": retrieval}
 
 
 if __name__ == "__main__":

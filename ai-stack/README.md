@@ -45,7 +45,8 @@ How `/explain` decides (`explain.py`):
 
 1. Exception type "other" never gets a suggestion.
 2. Retrieve from the resolution playbook (`docs/playbook/`, one file per section). If the top passage scores under **0.55**, abstain. The cutoff sits between the weakest case with a playbook answer (0.59) and the HS-code case that has none (0.48); six cases is a starting point, not a calibration.
-3. Claude (Haiku 5.5) words up to 3 actions from the passages it is given, each citing a passage number and a quote.
-4. Every quote is checked word for word against its passage and the portal page comes from the passage, not the model. An action that fails the check is dropped; if none survive, abstain.
+3. The XGBoost router (`router.py`) picks the model: under 1h left or a second open exception on the shipment asks for quality and gets Sonnet 5.5; everything else asks for cheap and fast and gets Haiku 5.5. The choice, its confidence and the reason come back in `routing`.
+4. Claude words up to 3 actions from the passages it is given, each citing a passage number and a quote.
+5. Every quote is checked word for word against its passage and the portal page comes from the passage, not the model. An action that fails the check is dropped; if none survive, abstain.
 
 Data lives in `data/exceptions.json` with a frozen demo clock, so the screens always match the prototype.

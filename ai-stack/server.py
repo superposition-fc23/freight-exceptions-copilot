@@ -78,4 +78,4 @@ class ExplainRequest(BaseModel):
 def explain_exception(req: ExplainRequest):
     """Up to 3 cited suggested actions, or an abstention naming the field in doubt (R3, R4, N2)."""
     from explain import explain  # imported lazily so /exceptions works without the vector store loaded
-    return explain(find(req.exception_id))
+    return explain(find(req.exception_id), enrich(find(req.exception_id))["minutes_left"])
