@@ -1,0 +1,15 @@
+# Freight exceptions copilot
+
+A self-serve exceptions dashboard for a digital freight forwarder's customers, built in a timed, AI-assisted product case and then wired to a working AI stack.
+
+The commit history is the build log: each step from blank template to working prototype is its own commit.
+
+## The brief
+
+Importers find out that a shipment has a problem (a customs hold, a missed vessel, a document error) late, usually in an email from their ops contact, and then wait for someone to tell them what to do. Design a self-serve experience that lets the customer see exceptions as they happen and act on them, with the forwarder's ops team as the backstop. Define testable requirements, scope a v1 with engineering, and identify the risks.
+
+## Layout
+
+| Folder | What |
+|---|---|
+| `harness/` | The blank case template and the `CLAUDE.md` working rules used to build the case in 45 minutes with Claude Code |

@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Case artifact</title>
+<style>
+:root{
+  --bg:#f6f7f9; --surface:#fff; --surface-2:#eceff4; --surface-3:#e2e7ee;
+  --fg:#141c24; --fg-2:#46525f; --fg-3:#6f7d8c;
+  --rule:#d5dce4; --rule-2:#bfc9d4;
+  --accent:#0f5f8f; --accent-soft:#ddeaf4;
+  --ok:#1b6b47; --ok-soft:#e2f0e9;
+  --warn:#8a5a00; --warn-soft:#f8eed6;
+  --stop:#9e2b2b; --stop-soft:#f8e6e6;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --body:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  --serif:Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f141a; --surface:#161d25; --surface-2:#1d2630; --surface-3:#26313d;
+  --fg:#e7edf3; --fg-2:#a9b6c3; --fg-3:#7e8d9b;
+  --rule:#2a3542; --rule-2:#3a4756;
+  --accent:#5fb2e0; --accent-soft:#0f2a3c;
+  --ok:#62c795; --ok-soft:#142c21;
+  --warn:#dcb155; --warn-soft:#2d2514;
+  --stop:#e5817d; --stop-soft:#2f1a1a;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f141a; --surface:#161d25; --surface-2:#1d2630; --surface-3:#26313d;
+  --fg:#e7edf3; --fg-2:#a9b6c3; --fg-3:#7e8d9b;
+  --rule:#2a3542; --rule-2:#3a4756; --accent:#5fb2e0; --accent-soft:#0f2a3c;
+  --ok:#62c795; --ok-soft:#142c21; --warn:#dcb155; --warn-soft:#2d2514;
+  --stop:#e5817d; --stop-soft:#2f1a1a; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+header.top{background:var(--surface);border-bottom:1px solid var(--rule);padding:28px 0 22px}
+.kick{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg-3);margin:0 0 10px}
+h1{font-family:var(--serif);font-size:clamp(26px,4.5vw,38px);line-height:1.1;margin:0 0 10px}
+.sub{color:var(--fg-2);margin:0;max-width:62ch}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{font-family:var(--mono);font-size:11px;padding:4px 9px;border:1px solid var(--rule-2);border-radius:3px;color:var(--fg-2)}
+nav.toc{position:sticky;top:0;z-index:30;background:var(--surface);border-bottom:1px solid var(--rule)}
+nav.toc ol{list-style:none;display:flex;margin:0;padding:0;overflow-x:auto}
+nav.toc a{display:block;white-space:nowrap;padding:11px 13px;font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--fg-3);text-decoration:none;border-bottom:2px solid transparent}
+nav.toc a:hover{color:var(--accent);border-bottom-color:var(--accent)}
+section{border-bottom:1px solid var(--rule);padding:38px 0}
+.sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+.sn{font-family:var(--mono);font-size:12px;color:var(--accent)}
+h2{font-family:var(--serif);font-size:clamp(20px,3vw,27px);line-height:1.2;margin:0}
+.lede{color:var(--fg-2);margin:0 0 22px;max-width:68ch}
+h3{font-family:var(--serif);font-size:18px;margin:26px 0 8px}
+p{margin:0 0 13px;max-width:72ch}
+ul,ol{margin:0 0 14px;padding-left:22px;max-width:72ch}
+li{margin-bottom:6px}
+code,.mono{font-family:var(--mono);font-size:.88em}
+code{background:var(--surface-2);padding:1px 5px;border-radius:3px}
+.note{border-left:3px solid var(--rule-2);padding:2px 0 2px 16px;margin:18px 0;color:var(--fg-2);max-width:72ch}
+.note.ok{border-left-color:var(--ok)} .note.warn{border-left-color:var(--warn)} .note.stop{border-left-color:var(--stop)}
+.note .tag{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-3);margin-bottom:4px}
+.tbl{overflow-x:auto;margin:18px 0;border:1px solid var(--rule);border-radius:4px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:560px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--fg-3);background:var(--surface-2);font-weight:500;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+td.num{font-family:var(--mono);white-space:nowrap}
+.pill{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:2px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.stop{background:var(--stop-soft);color:var(--stop)}
+.pill.new{background:var(--accent-soft);color:var(--accent)}
+figure{margin:22px 0;border:1px solid var(--rule);border-radius:5px;background:var(--surface);padding:18px}
+figcaption{font-size:13px;color:var(--fg-2);margin-top:10px}
+svg{display:block;max-width:100%;height:auto}
+svg text{font-family:var(--mono)}
+svg .nd{fill:var(--surface-2);stroke:var(--rule-2)}
+svg .nd-a{fill:var(--accent-soft);stroke:var(--accent)}
+svg .nd-w{fill:var(--warn-soft);stroke:var(--warn)}
+svg .lbl{font-size:11px;fill:var(--fg);text-anchor:middle}
+svg .sub-lbl{font-size:9px;fill:var(--fg-3);text-anchor:middle}
+svg .edge{stroke:var(--rule-2);fill:none;stroke-width:1.2}
+svg .edge-d{stroke:var(--rule-2);fill:none;stroke-width:1.2;stroke-dasharray:3 3}
+svg .edge-lbl{font-size:9px;fill:var(--fg-3)}
+
+/* ---------- PROTOTYPE SHELL ---------- */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tab{font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;padding:7px 12px;border:1px solid var(--rule-2);border-radius:3px;background:var(--surface);color:var(--fg-2);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.screen{display:none}
+.screen.on{display:block}
+.mock{border:1px solid var(--rule-2);border-radius:6px;overflow:hidden;background:var(--surface);font-size:13px}
+.mock-bar{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface-3);border-bottom:1px solid var(--rule-2)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--rule-2)}
+.mock-url{font-family:var(--mono);font-size:11px;color:var(--fg-3)}
+.mock-top{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--rule);background:var(--surface)}
+.brand{font-weight:600;font-size:14px}
+.mock-top .right{display:flex;gap:8px;align-items:center}
+.btn{font-size:12px;padding:5px 11px;border-radius:4px;border:1px solid var(--rule-2);background:var(--surface);color:var(--fg-2);cursor:pointer}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.mock-body{display:grid;grid-template-columns:170px 1fr 290px;min-height:330px}
+@media (max-width:860px){.mock-body{grid-template-columns:1fr}}
+.side{border-right:1px solid var(--rule);background:var(--surface-2);padding:12px 0}
+.side-i{padding:7px 14px;font-size:12.5px;color:var(--fg-2);cursor:pointer}
+.side-i.on{background:var(--accent-soft);color:var(--accent);font-weight:600;border-left:2px solid var(--accent)}
+.side-h{padding:6px 14px;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-3);margin-top:8px}
+.main{padding:0;min-width:0;overflow-x:auto}
+.main-h{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--rule)}
+.main-h h4{margin:0;font-size:14px}
+.filters{display:flex;gap:6px;flex-wrap:wrap;padding:9px 14px;border-bottom:1px solid var(--rule);background:var(--surface-2)}
+.f{font-family:var(--mono);font-size:10.5px;padding:3px 8px;border:1px solid var(--rule-2);border-radius:12px;color:var(--fg-3);cursor:pointer;white-space:nowrap}
+.f.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+table.grid{display:table;min-width:0;width:100%;font-size:12.5px}
+table.grid th{padding:7px 12px;font-size:9.5px}
+table.grid td{padding:8px 12px;border-bottom:1px solid var(--rule)}
+tr.r{cursor:pointer}
+tr.r:hover td{background:var(--surface-2)}
+tr.r.sel td{background:var(--accent-soft)}
+tr.r.flag td:first-child{box-shadow:inset 3px 0 0 var(--stop)}
+tr.r.soft td:first-child{box-shadow:inset 3px 0 0 var(--warn)}
+.panel{border-left:1px solid var(--rule);padding:14px;background:var(--surface)}
+.panel h5{margin:0 0 3px;font-size:14px}
+.panel .meta{font-family:var(--mono);font-size:10.5px;color:var(--fg-3);margin-bottom:12px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:5px 10px;font-size:12.5px;margin-bottom:12px}
+.kv dt{color:var(--fg-3)}
+.kv dd{margin:0}
+.conf{height:5px;border-radius:3px;background:var(--surface-3);overflow:hidden;margin:3px 0 2px}
+.conf > i{display:block;height:100%;background:var(--ok)}
+.conf.low > i{background:var(--warn)}
+.conf.bad > i{background:var(--stop)}
+.hint{font-size:11px;color:var(--fg-3)}
+.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--rule)}
+.banner{padding:9px 14px;font-size:12.5px;border-bottom:1px solid var(--rule)}
+.banner.warn{background:var(--warn-soft);color:var(--warn)}
+.banner.stop{background:var(--stop-soft);color:var(--stop)}
+.banner.ok{background:var(--ok-soft);color:var(--ok)}
+.trail{font-family:var(--mono);font-size:11px;line-height:1.7;color:var(--fg-2)}
+.trail b{color:var(--fg)}
+footer{padding:28px 0 46px;color:var(--fg-3);font-size:13px}
+@media print{nav.toc{display:none}section{page-break-inside:avoid}.screen{display:block!important}}
+</style>
+<!-- Tailwind for new UI. Preflight is off so the styles above stay intact; colors map to the same variables, so dark mode still works. -->
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>
+tailwind.config = {
+  corePlugins: { preflight: false },
+  theme: { extend: {
+    colors: {
+      bg: 'var(--bg)', surface: 'var(--surface)', 'surface-2': 'var(--surface-2)', 'surface-3': 'var(--surface-3)',
+      fg: 'var(--fg)', 'fg-2': 'var(--fg-2)', 'fg-3': 'var(--fg-3)', rule: 'var(--rule)', 'rule-2': 'var(--rule-2)',
+      accent: 'var(--accent)', 'accent-soft': 'var(--accent-soft)', ok: 'var(--ok)', 'ok-soft': 'var(--ok-soft)',
+      warn: 'var(--warn)', 'warn-soft': 'var(--warn-soft)', stop: 'var(--stop)', 'stop-soft': 'var(--stop-soft)',
+    },
+    fontFamily: { body: 'var(--body)', mono: 'var(--mono)', serif: 'var(--serif)' },
+  } },
+};
+</script>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <p class="kick">Case artifact &middot; replace this line with the prompt in one sentence</p>
+    <h1>TITLE: the thing being built, v1 scope</h1>
+    <p class="sub">One sentence: who this is for and what decision it changes.</p>
+    <div class="chips">
+      <span class="chip">v1 scope</span>
+      <span class="chip">assumptions marked</span>
+      <span class="chip">open questions at the end</span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc"><div class="wrap"><ol>
+  <li><a href="#problem">Problem</a></li>
+  <li><a href="#user">User</a></li>
+  <li><a href="#scope">Scope</a></li>
+  <li><a href="#model">Model</a></li>
+  <li><a href="#proto">Prototype</a></li>
+  <li><a href="#reqs">Requirements</a></li>
+  <li><a href="#metrics">Metrics</a></li>
+  <li><a href="#risks">Risks</a></li>
+  <li><a href="#phasing">Phasing</a></li>
+</ol></div></nav>
+
+<!-- 1 -->
+<section id="problem"><div class="wrap">
+  <div class="sh"><span class="sn">01</span><h2>The problem</h2></div>
+  <p class="lede">One sentence in the user's position, no mechanism in it. Then one sentence on what it costs today, in money, time or trust.</p>
+  <p>PROBLEM SENTENCE.</p>
+  <p>COST SENTENCE.</p>
+</div></section>
+
+<!-- 2 -->
+<section id="user"><div class="wrap">
+  <div class="sh"><span class="sn">02</span><h2>User and decision</h2></div>
+  <p class="lede">Who, the decision they are making, and what they do instead today.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>User</th><th>Decision they make</th><th>What they do today</th></tr></thead>
+    <tbody>
+      <tr><td><strong>PRIMARY</strong></td><td>...</td><td>...</td></tr>
+      <tr><td>SECONDARY</td><td>...</td><td>...</td></tr>
+    </tbody>
+  </table></div>
+</div></section>
+
+<!-- 3 -->
+<section id="scope"><div class="wrap">
+  <div class="sh"><span class="sn">03</span><h2>Goal and non-goals</h2></div>
+  <p><strong>Goal.</strong> One line, with the decision it changes.</p>
+  <h3>Non-goals for v1</h3>
+  <ul>
+    <li><strong>Not handling X</strong>, because REASON.</li>
+    <li><strong>Not automating Y</strong>, because REASON.</li>
+    <li><strong>Not replacing Z</strong>, because REASON.</li>
+  </ul>
+  <div class="note warn"><span class="tag">Assumptions I am making, correct me</span>
+    <p>1. ... &nbsp; 2. ... &nbsp; 3. ...</p>
+  </div>
+</div></section>
+
+<!-- 4 -->
+<section id="model"><div class="wrap">
+  <div class="sh"><span class="sn">04</span><h2>The model</h2></div>
+  <p class="lede">The entities, the grain each event lands on, and where the state changes. Edit the labels, keep the shape.</p>
+  <figure>
+    <svg viewBox="0 0 760 290" role="img" aria-label="Entity and state model">
+      <!-- row 1: entities -->
+      <rect class="nd-a" x="20" y="20" width="150" height="46" rx="4"/>
+      <text class="lbl" x="95" y="40">ENTITY A</text><text class="sub-lbl" x="95" y="55">id, earliest known</text>
+
+      <rect class="nd" x="210" y="20" width="150" height="46" rx="4"/>
+      <text class="lbl" x="285" y="40">ENTITY B</text><text class="sub-lbl" x="285" y="55">1 to many</text>
+
+      <rect class="nd" x="400" y="20" width="150" height="46" rx="4"/>
+      <text class="lbl" x="475" y="40">ENTITY C</text><text class="sub-lbl" x="475" y="55">arrives later</text>
+
+      <rect class="nd-w" x="590" y="20" width="150" height="46" rx="4"/>
+      <text class="lbl" x="665" y="40">ENTITY D</text><text class="sub-lbl" x="665" y="55">reused, needs time key</text>
+
+      <path class="edge" d="M170 43 H210"/><path class="edge" d="M360 43 H400"/><path class="edge" d="M550 43 H590"/>
+      <text class="edge-lbl" x="176" y="37">1:N</text><text class="edge-lbl" x="366" y="37">N:M</text><text class="edge-lbl" x="556" y="37">1:N</text>
+
+      <!-- row 2: states -->
+      <text class="sub-lbl" x="60" y="110" style="text-anchor:start">STATE FLOW</text>
+      <rect class="nd" x="20" y="125" width="130" height="40" rx="4"/><text class="lbl" x="85" y="149">STATE 1</text>
+      <rect class="nd" x="195" y="125" width="130" height="40" rx="4"/><text class="lbl" x="260" y="149">STATE 2</text>
+      <rect class="nd" x="370" y="125" width="130" height="40" rx="4"/><text class="lbl" x="435" y="149">STATE 3</text>
+      <rect class="nd-a" x="545" y="125" width="130" height="40" rx="4"/><text class="lbl" x="610" y="149">RESOLVED</text>
+      <path class="edge" d="M150 145 H195"/><path class="edge" d="M325 145 H370"/><path class="edge" d="M500 145 H545"/>
+
+      <!-- exception branch -->
+      <rect class="nd-w" x="370" y="215" width="130" height="40" rx="4"/><text class="lbl" x="435" y="239">EXCEPTION</text>
+      <path class="edge-d" d="M435 165 V215"/>
+      <text class="edge-lbl" x="442" y="195">no event by T</text>
+      <path class="edge-d" d="M500 235 H610 V165"/>
+      <text class="edge-lbl" x="516" y="230">human resolves</text>
+    </svg>
+    <figcaption><b>Reading it:</b> ONE SENTENCE on the thing this picture makes obvious. The best sentence names a trap, for example that events land on four different grains while the user wants one timeline.</figcaption>
+  </figure>
+</div></section>
+
+<!-- 5 -->
+<section id="proto"><div class="wrap">
+  <div class="sh"><span class="sn">05</span><h2>Prototype</h2></div>
+  <p><a class="btn pri" href="prototype.html" target="_blank" style="text-decoration:none">Open the prototype &rarr;</a></p>
+  <!-- The screens live in prototype.html, full width for screen share. Add a one-line summary per screen here once built. -->
+</div></section>
+
+<!-- 6 -->
+<section id="reqs"><div class="wrap">
+  <div class="sh"><span class="sn">06</span><h2>Requirements</h2></div>
+  <p class="lede">Condition, then observable behaviour, then how we would test it. <strong>If I cannot name the test, it is not a requirement yet, it is an intention.</strong></p>
+  <div class="tbl"><table>
+    <thead><tr><th style="width:52px">ID</th><th>Requirement</th><th>Test</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">R1</td><td>When CONDITION, the system must BEHAVIOUR.</td><td>METHOD and data</td></tr>
+      <tr><td class="mono">R2</td><td>When CONDITION, the system must BEHAVIOUR.</td><td>METHOD and data</td></tr>
+      <tr><td class="mono">R3</td><td>When CONDITION, the system must BEHAVIOUR.</td><td>METHOD and data</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>What the system must not do</h3>
+  <div class="tbl"><table>
+    <thead><tr><th style="width:52px">ID</th><th>Constraint</th><th>Trigger</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">N1</td><td>Must not execute. Drafts only, a person sends.</td><td>Changes when MEASURED CONDITION, not on a date</td></tr>
+      <tr><td class="mono">N2</td><td>Must not act above VALUE threshold without approval.</td><td>Threshold set from the cost of being wrong</td></tr>
+      <tr><td class="mono">N3</td><td><strong>Must not degrade silently.</strong> Above ERROR RATE over WINDOW, auto mode disables itself, reverts to approval, alerts within TIME.</td><td>Rolling window</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="note"><span class="tag">Four numbers I would set deliberately rather than inherit</span>
+    <p>The confidence cutoff for acting alone, the accuracy target for the decision itself, the error-rate limit and its window, and how quickly a human has to be told. <strong>I would not set any of them in this room. I would set them from the cost of being wrong in each direction, and I would want the first version deliberately too conservative.</strong></p>
+  </div>
+</div></section>
+
+<!-- 7 -->
+<section id="metrics"><div class="wrap">
+  <div class="sh"><span class="sn">07</span><h2>Metrics</h2></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Type</th><th>Metric</th><th>Why this one</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill new">Leading</span></td><td>...</td><td>Moves in days, tells you the mechanism works</td></tr>
+      <tr><td><span class="pill ok">Lagging</span></td><td>...</td><td>The business outcome, moves in a quarter</td></tr>
+      <tr><td><span class="pill stop">Counter</span></td><td>...</td><td>Goes up if we succeeded in a harmful way. Throughput always improves if you accept more wrong answers</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>If the metric drops after launch:</strong> segment first, name the substitution hypothesis explicitly, check it against the aggregate rather than the component, then say what evidence would separate the competing explanations.</p>
+</div></section>
+
+<!-- 8 -->
+<section id="risks"><div class="wrap">
+  <div class="sh"><span class="sn">08</span><h2>Risks and open questions</h2></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Risk</th><th>Why it bites</th><th>What I would do</th></tr></thead>
+    <tbody>
+      <tr><td>...</td><td>...</td><td>...</td></tr>
+      <tr><td>...</td><td>...</td><td>...</td></tr>
+      <tr><td>...</td><td>...</td><td>...</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Open questions before anyone builds this</h3>
+  <ol>
+    <li>...</li><li>...</li><li>...</li>
+  </ol>
+  <div class="note stop"><span class="tag">Where this plan is weak</span>
+    <p>Three ways I could be wrong about this. SAY THESE OUT LOUD AROUND MINUTE THIRTY-FIVE, BEFORE THE ENGINEER FINDS THEM.</p>
+  </div>
+</div></section>
+
+<!-- 9 -->
+<section id="phasing"><div class="wrap">
+  <div class="sh"><span class="sn">09</span><h2>Phasing</h2></div>
+  <p class="lede">Sequenced as de-risking, not as t-shirt sizes I have no basis for.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Phase</th><th>What</th><th>The assumption it tests</th></tr></thead>
+    <tbody>
+      <tr><td><strong>P1</strong></td><td>Smallest build that tests the riskiest assumption</td><td>...</td></tr>
+      <tr><td><strong>P2</strong></td><td>If P1 holds</td><td>...</td></tr>
+      <tr><td><strong>P3</strong></td><td>Only after it is working</td><td>...</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>What I would cut if I had half the time, and what that would cost:</strong> ...</p>
+</div></section>
+
+<footer><div class="wrap">
+  <p>Built live during the session. Figures on the screens are illustrative, and assumed inputs are marked where they appear.</p>
+</div></footer>
+
+<script>
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click', function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.setAttribute('aria-selected','false')});
+    t.setAttribute('aria-selected','true');
+    document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on')});
+    var el=document.getElementById(t.dataset.screen); if(el) el.classList.add('on');
+  });
+});
+document.querySelectorAll('tr.r').forEach(function(r){
+  r.addEventListener('click', function(){
+    var tb=r.closest('tbody');
+    tb.querySelectorAll('tr.r').forEach(function(x){x.classList.remove('sel')});
+    r.classList.add('sel');
+  });
+});
+</script>
+</body>
+</html>
