@@ -28,3 +28,16 @@ Without keys everything still runs: retrieval is real, model steps run offline w
   Flux (`flux-general-en`) is live speech-to-text over a WebSocket (`client.listen.v2.connect`), for voice agents.
 - Gemini is `gemini-3.6-flash` (Google lists $1.50 / $7.50 per 1M tokens). GPT-5.6 Sol cost in `llm.py` is approximate; check before quoting.
 - If imports fail or the folder moves: `./setup.sh`.
+
+## API for the dashboard
+
+```
+.venv/bin/uvicorn server:app --reload
+```
+
+| Endpoint | Returns |
+|---|---|
+| `GET /exceptions` | Open exceptions, soonest deadline first, each with `time_left` and an urgency `tier` (under 1h, 1h to 6h, 6h to 24h, over 24h). Optional `?type=customs_hold` |
+| `GET /exceptions/{id}` | One exception |
+
+Data lives in `data/exceptions.json` with a frozen demo clock, so the screens always match the prototype.

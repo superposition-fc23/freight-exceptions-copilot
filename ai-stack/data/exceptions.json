@@ -1,0 +1,73 @@
+{
+  "demo_now": "2026-10-21T11:15:00",
+  "note": "Illustrative data matching the prototype cards. IDs, ports, times and deadlines are made up.",
+  "exceptions": [
+    {
+      "id": "EXC-1", "shipment": "SHP-20417", "type": "customs_hold",
+      "containers": {"affected": 2, "total": 4, "ids": ["TGHU 418220-6", "TGHU 418231-4"]},
+      "route": "Shanghai to Los Angeles", "location": "Los Angeles", "detail": "Entry under exam",
+      "sources": [{"system": "customs broker", "status": "hold", "event_at": "2026-10-21T09:12:00"}],
+      "deadline": "2026-10-21T12:00:00", "deadline_reason": "Exam response window closes",
+      "action": {"label": "Upload exam invoice", "portal_page": "Documents"},
+      "age_hours": 6, "tags": ["also missed vessel"]
+    },
+    {
+      "id": "EXC-2", "shipment": "SHP-20388", "type": "customs_hold",
+      "containers": {"affected": 1, "total": 1, "ids": []},
+      "route": "to Long Beach", "location": "Long Beach", "detail": "ISF query",
+      "sources": [
+        {"system": "customs broker", "status": "hold", "note": "ISF query open on the entry", "event_at": "2026-10-21T08:05:00"},
+        {"system": "carrier", "status": "released", "note": "Container available for pickup", "event_at": "2026-10-21T10:20:00"}
+      ],
+      "deadline": "2026-10-21T13:40:00", "deadline_reason": "ISF response window closes",
+      "action": {"label": "Go to shipment", "portal_page": "Shipment"},
+      "age_hours": 27, "tags": []
+    },
+    {
+      "id": "EXC-3", "shipment": "SHP-20417", "type": "missed_vessel",
+      "containers": {"affected": 2, "total": 4, "ids": []},
+      "route": "Shanghai to Los Angeles", "location": "Shanghai", "detail": "2 of 4 containers rolled, next sailing +7 days",
+      "sources": [{"system": "carrier EDI", "status": "rolled", "event_at": "2026-10-21T07:40:00"}],
+      "deadline": "2026-10-21T16:15:00", "deadline_reason": "Rebooking hold expires",
+      "action": {"label": "Confirm rebooking", "portal_page": "Booking"},
+      "age_hours": 49, "tags": ["also customs hold"]
+    },
+    {
+      "id": "EXC-4", "shipment": "SHP-20431", "type": "missed_vessel",
+      "containers": {"affected": 3, "total": 3, "ids": []},
+      "route": "Ningbo to Oakland", "location": "Ningbo", "detail": "Cut off missed",
+      "sources": [{"system": "carrier EDI", "status": "cut off missed", "event_at": "2026-10-21T11:05:00"}],
+      "deadline": "2026-10-22T07:15:00", "deadline_reason": "Next vessel cut off",
+      "action": {"label": "Choose sailing option", "portal_page": "Booking"},
+      "age_hours": 4, "tags": []
+    },
+    {
+      "id": "EXC-5", "shipment": "SHP-20402", "type": "document_error",
+      "containers": {"affected": 2, "total": 2, "ids": []},
+      "route": "Ho Chi Minh City to Seattle", "location": "Ho Chi Minh City", "detail": "Packing list weight mismatch",
+      "sources": [{"system": "doc check", "status": "error", "event_at": "2026-10-21T08:30:00"}],
+      "deadline": "2026-10-23T17:15:00", "deadline_reason": "Document filing deadline",
+      "action": {"label": "Request fix", "portal_page": "Documents"},
+      "age_hours": 9, "tags": ["supplier to fix"]
+    },
+    {
+      "id": "EXC-6", "shipment": "SHP-20415", "type": "document_error",
+      "containers": {"affected": 1, "total": 2, "ids": []},
+      "route": "Busan to Tacoma", "location": "Busan", "detail": "Customs declaration, HS code missing",
+      "sources": [{"system": "doc check", "status": "error", "event_at": "2026-10-21T10:02:00"}],
+      "deadline": "2026-10-25T11:15:00", "deadline_reason": "Document filing deadline",
+      "action": {"label": "Add HS code", "portal_page": "Documents"},
+      "age_hours": 24, "tags": []
+    },
+    {
+      "id": "EXC-7", "shipment": "SHP-20398", "type": "other",
+      "containers": {"affected": 4, "total": 4, "ids": []},
+      "route": "Shenzhen to Los Angeles", "location": "Shenzhen",
+      "detail": "Supplier reports cargo ready date moved from 3 Nov to 14 Nov after a production line stoppage. The must-arrive-by date on the PO is 28 Nov, which the new ready date no longer supports on the booked sailing. Supplier has asked whether a partial shipment of the finished units is acceptable and whether the remaining units can follow on the next sailing.",
+      "sources": [{"system": "ops note", "status": "open", "event_at": "2026-10-21T10:48:00"}],
+      "deadline": "2026-10-24T18:00:00", "deadline_reason": "Booked sailing cut off",
+      "action": null,
+      "age_hours": 3, "tags": []
+    }
+  ]
+}
