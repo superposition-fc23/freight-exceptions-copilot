@@ -57,3 +57,7 @@ How `/explain` decides (`explain.py`):
 5. Every quote is checked word for word against its passage and the portal page comes from the passage, not the model. An action that fails the check is dropped; if none survive, abstain.
 
 Data lives in `data/exceptions.json` with a frozen demo clock, so the screens always match the prototype.
+
+## Replay for the hosted copy
+
+`.venv/bin/python record.py` runs every endpoint the app uses once, live, from the seeded state and writes `app/replay.json`. When the app cannot reach the API (GitHub Pages), it plays those responses back, keeps ops verdicts in the page, and says "Replay" in the header. Re-record after changing the pipeline.

@@ -1,0 +1,1339 @@
+{
+ "recorded": "2026-10-30",
+ "health": {
+  "ok": true,
+  "now": "2026-10-21T11:15:00"
+ },
+ "exceptions": [
+  {
+   "id": "EXC-1",
+   "shipment": "SHP-20417",
+   "type": "customs_hold",
+   "containers": {
+    "affected": 2,
+    "total": 4,
+    "ids": [
+     "TGHU 418220-6",
+     "TGHU 418231-4"
+    ]
+   },
+   "route": "Shanghai to Los Angeles",
+   "location": "Los Angeles",
+   "detail": "Entry under exam",
+   "sources": [
+    {
+     "system": "customs broker",
+     "status": "hold",
+     "event_at": "2026-10-21T09:12:00"
+    }
+   ],
+   "deadline": "2026-10-21T12:00:00",
+   "deadline_reason": "Exam response window closes",
+   "action": {
+    "label": "Upload exam invoice",
+    "portal_page": "Documents"
+   },
+   "age_hours": 6,
+   "tags": [
+    "also missed vessel"
+   ],
+   "minutes_left": 45,
+   "time_left": "45m left",
+   "tier": "under_1h"
+  },
+  {
+   "id": "EXC-2",
+   "shipment": "SHP-20388",
+   "type": "customs_hold",
+   "containers": {
+    "affected": 1,
+    "total": 1,
+    "ids": []
+   },
+   "route": "to Long Beach",
+   "location": "Long Beach",
+   "detail": "ISF query",
+   "sources": [
+    {
+     "system": "customs broker",
+     "status": "hold",
+     "note": "ISF query open on the entry",
+     "event_at": "2026-10-21T08:05:00"
+    },
+    {
+     "system": "carrier",
+     "status": "released",
+     "note": "Container available for pickup",
+     "event_at": "2026-10-21T10:20:00"
+    }
+   ],
+   "deadline": "2026-10-21T13:40:00",
+   "deadline_reason": "ISF response window closes",
+   "action": {
+    "label": "Go to shipment",
+    "portal_page": "Shipment"
+   },
+   "age_hours": 27,
+   "tags": [],
+   "minutes_left": 145,
+   "time_left": "2h 25m left",
+   "tier": "1h_to_6h"
+  },
+  {
+   "id": "EXC-3",
+   "shipment": "SHP-20417",
+   "type": "missed_vessel",
+   "containers": {
+    "affected": 2,
+    "total": 4,
+    "ids": []
+   },
+   "route": "Shanghai to Los Angeles",
+   "location": "Shanghai",
+   "detail": "2 of 4 containers rolled, next sailing +7 days",
+   "sources": [
+    {
+     "system": "carrier EDI",
+     "status": "rolled",
+     "event_at": "2026-10-21T07:40:00"
+    }
+   ],
+   "deadline": "2026-10-21T16:15:00",
+   "deadline_reason": "Rebooking hold expires",
+   "action": {
+    "label": "Confirm rebooking",
+    "portal_page": "Booking"
+   },
+   "age_hours": 49,
+   "tags": [
+    "also customs hold"
+   ],
+   "minutes_left": 300,
+   "time_left": "5h left",
+   "tier": "1h_to_6h"
+  },
+  {
+   "id": "EXC-4",
+   "shipment": "SHP-20431",
+   "type": "missed_vessel",
+   "containers": {
+    "affected": 3,
+    "total": 3,
+    "ids": []
+   },
+   "route": "Ningbo to Oakland",
+   "location": "Ningbo",
+   "detail": "Cut off missed",
+   "sources": [
+    {
+     "system": "carrier EDI",
+     "status": "cut off missed",
+     "event_at": "2026-10-21T11:05:00"
+    }
+   ],
+   "deadline": "2026-10-22T07:15:00",
+   "deadline_reason": "Next vessel cut off",
+   "action": {
+    "label": "Choose sailing option",
+    "portal_page": "Booking"
+   },
+   "age_hours": 4,
+   "tags": [],
+   "minutes_left": 1200,
+   "time_left": "20h left",
+   "tier": "6h_to_24h"
+  },
+  {
+   "id": "EXC-5",
+   "shipment": "SHP-20402",
+   "type": "document_error",
+   "containers": {
+    "affected": 2,
+    "total": 2,
+    "ids": []
+   },
+   "route": "Ho Chi Minh City to Seattle",
+   "location": "Ho Chi Minh City",
+   "detail": "Packing list weight mismatch",
+   "sources": [
+    {
+     "system": "doc check",
+     "status": "error",
+     "event_at": "2026-10-21T08:30:00"
+    }
+   ],
+   "deadline": "2026-10-23T17:15:00",
+   "deadline_reason": "Document filing deadline",
+   "action": {
+    "label": "Request fix",
+    "portal_page": "Documents"
+   },
+   "age_hours": 9,
+   "tags": [
+    "supplier to fix"
+   ],
+   "minutes_left": 3240,
+   "time_left": "2d 6h left",
+   "tier": "over_24h"
+  },
+  {
+   "id": "EXC-7",
+   "shipment": "SHP-20398",
+   "type": "other",
+   "containers": {
+    "affected": 4,
+    "total": 4,
+    "ids": []
+   },
+   "route": "Shenzhen to Los Angeles",
+   "location": "Shenzhen",
+   "detail": "Supplier reports cargo ready date moved from 3 Nov to 14 Nov after a production line stoppage. The must-arrive-by date on the PO is 28 Nov, which the new ready date no longer supports on the booked sailing. Supplier has asked whether a partial shipment of the finished units is acceptable and whether the remaining units can follow on the next sailing.",
+   "sources": [
+    {
+     "system": "ops note",
+     "status": "open",
+     "event_at": "2026-10-21T10:48:00"
+    }
+   ],
+   "deadline": "2026-10-24T18:00:00",
+   "deadline_reason": "Booked sailing cut off",
+   "action": null,
+   "age_hours": 3,
+   "tags": [],
+   "minutes_left": 4725,
+   "time_left": "3d 6h left",
+   "tier": "over_24h"
+  },
+  {
+   "id": "EXC-6",
+   "shipment": "SHP-20415",
+   "type": "document_error",
+   "containers": {
+    "affected": 1,
+    "total": 2,
+    "ids": []
+   },
+   "route": "Busan to Tacoma",
+   "location": "Busan",
+   "detail": "Customs declaration, HS code missing",
+   "sources": [
+    {
+     "system": "doc check",
+     "status": "error",
+     "event_at": "2026-10-21T10:02:00"
+    }
+   ],
+   "deadline": "2026-10-25T11:15:00",
+   "deadline_reason": "Document filing deadline",
+   "action": {
+    "label": "Add HS code",
+    "portal_page": "Documents"
+   },
+   "age_hours": 24,
+   "tags": [],
+   "minutes_left": 5760,
+   "time_left": "4d left",
+   "tier": "over_24h"
+  }
+ ],
+ "audit": {
+  "threshold": 0.05,
+  "min_reviewed": 20,
+  "by_type": [
+   {
+    "type": "customs_hold",
+    "reviewed": 42,
+    "wrong": 1,
+    "wrong_rate": 0.0238,
+    "killed": false
+   },
+   {
+    "type": "missed_vessel",
+    "reviewed": 38,
+    "wrong": 1,
+    "wrong_rate": 0.0263,
+    "killed": false
+   },
+   {
+    "type": "document_error",
+    "reviewed": 26,
+    "wrong": 0,
+    "wrong_rate": 0.0,
+    "killed": false
+   }
+  ],
+  "eval_cases": 2,
+  "trail": [
+   {
+    "at": "2026-10-19T14:19:00",
+    "exception_id": "HIST-MI037",
+    "shipment": "SHP-19495",
+    "type": "missed_vessel",
+    "action": "Replan delivery for the later containers",
+    "verdict": "right",
+    "resolved_by": "",
+    "reviewer": "ops"
+   },
+   {
+    "at": "2026-10-19T13:12:00",
+    "exception_id": "HIST-MI036",
+    "shipment": "SHP-19990",
+    "type": "missed_vessel",
+    "action": "Replan delivery for the later containers",
+    "verdict": "right",
+    "resolved_by": "",
+    "reviewer": "ops"
+   },
+   {
+    "at": "2026-10-19T10:55:00",
+    "exception_id": "HIST-DO025",
+    "shipment": "SHP-19207",
+    "type": "document_error",
+    "action": "Request a corrected packing list from the supplier",
+    "verdict": "right",
+    "resolved_by": "",
+    "reviewer": "ops"
+   },
+   {
+    "at": "2026-10-19T10:47:00",
+    "exception_id": "HIST-CU041",
+    "shipment": "SHP-19798",
+    "type": "customs_hold",
+    "action": "Upload the exam documents against the entry",
+    "verdict": "right",
+    "resolved_by": "",
+    "reviewer": "ops"
+   },
+   {
+    "at": "2026-10-19T09:40:00",
+    "exception_id": "HIST-CU040",
+    "shipment": "SHP-19337",
+    "type": "customs_hold",
+    "action": "Check terminal free time for held containers",
+    "verdict": "right",
+    "resolved_by": "",
+    "reviewer": "ops"
+   },
+   {
+    "at": "2026-10-18T16:33:00",
+    "exception_id": "HIST-CU039",
+    "shipment": "SHP-19517",
+    "type": "customs_hold",
+    "action": "Correct the ISF filing through the broker",
+    "verdict": "right",
+    "resolved_by": "",
+    "reviewer": "ops"
+   },
+   {
+    "at": "2026-10-18T15:26:00",
+    "exception_id": "HIST-CU038",
+    "shipment": "SHP-19646",
+    "type": "customs_hold",
+    "action": "Correct the ISF filing through the broker",
+    "verdict": "right",
+    "resolved_by": "",
+    "reviewer": "ops"
+   },
+   {
+    "at": "2026-10-18T12:05:00",
+    "exception_id": "HIST-MI035",
+    "shipment": "SHP-19485",
+    "type": "missed_vessel",
+    "action": "Compare next sailing and alternative routing",
+    "verdict": "right",
+    "resolved_by": "",
+    "reviewer": "ops"
+   },
+   {
+    "at": "2026-10-18T11:58:00",
+    "exception_id": "HIST-MI034",
+    "shipment": "SHP-19241",
+    "type": "missed_vessel",
+    "action": "Compare next sailing and alternative routing",
+    "verdict": "right",
+    "resolved_by": "",
+    "reviewer": "ops"
+   },
+   {
+    "at": "2026-10-18T09:48:00",
+    "exception_id": "HIST-DO024",
+    "shipment": "SHP-19407",
+    "type": "document_error",
+    "action": "Request the signed final invoice from the supplier",
+    "verdict": "right",
+    "resolved_by": "",
+    "reviewer": "ops"
+   },
+   {
+    "at": "2026-10-17T16:41:00",
+    "exception_id": "HIST-DO023",
+    "shipment": "SHP-19964",
+    "type": "document_error",
+    "action": "Request the signed final invoice from the supplier",
+    "verdict": "right",
+    "resolved_by": "",
+    "reviewer": "ops"
+   },
+   {
+    "at": "2026-10-17T15:34:00",
+    "exception_id": "HIST-DO022",
+    "shipment": "SHP-19876",
+    "type": "document_error",
+    "action": "Request the signed final invoice from the supplier",
+    "verdict": "right",
+    "resolved_by": "",
+    "reviewer": "ops"
+   }
+  ],
+  "live_reviews": 0
+ },
+ "explain": {
+  "EXC-1": {
+   "exception_id": "EXC-1",
+   "status": "suggested",
+   "actions": [
+    {
+     "action": "On the Documents page, upload any supporting invoices the exam has requested against the entry within one business day, since missing exam documents extend the hold and add terminal storage.",
+     "citation": {
+      "section": "Playbook \u00a74.2, customs exam",
+      "quote": "upload them against the entry within one business day"
+     },
+     "portal_page": "Documents"
+    },
+    {
+     "action": "On the Shipment page, confirm which party placed the hold (CBP, another agency, or the carrier) and whether it covers the whole entry or only specific containers, then make sure the broker is responding to customs on behalf of the importer of record.",
+     "citation": {
+      "section": "Playbook \u00a74.1, customs hold triage",
+      "quote": "first confirm which party placed it"
+     },
+     "portal_page": "Shipment"
+    },
+    {
+     "action": "On the Delivery page, release the trucking appointment for the held containers to avoid failed pickup fees, and replan any warehouse labour booked against the original arrival.",
+     "citation": {
+      "section": "Playbook \u00a74.5, held cargo",
+      "quote": "Release the trucking appointment for held containers to avoid failed pickup fees."
+     },
+     "portal_page": "Delivery"
+    }
+   ],
+   "dropped_uncited": 0,
+   "checks": [
+    {
+     "action": "On the Documents page, upload any supporting invoices the exam has requested against the entry within one business day, since missing exam documents extend the hold and add terminal storage.",
+     "source": 1,
+     "quote_found": true
+    },
+    {
+     "action": "On the Shipment page, confirm which party placed the hold (CBP, another agency, or the carrier) and whether it covers the whole entry or only specific containers, then make sure the broker is responding to customs on behalf of the importer of record.",
+     "source": 2,
+     "quote_found": true
+    },
+    {
+     "action": "On the Delivery page, release the trucking appointment for the held containers to avoid failed pickup fees, and replan any warehouse labour booked against the original arrival.",
+     "source": 4,
+     "quote_found": true
+    }
+   ],
+   "routing": {
+    "model": "sonnet-5.5",
+    "confidence": 1.0,
+    "reason": "under 1h left and a second open exception on the shipment",
+    "features": {
+     "task": "reason",
+     "modality": "text",
+     "cost": 2,
+     "latency": 1,
+     "quality": 2,
+     "input_k": 1
+    },
+    "alternatives": [
+     {
+      "model": "sonnet-5.5",
+      "p": 1.0
+     },
+     {
+      "model": "gpt-5.6-sol",
+      "p": 0.0
+     },
+     {
+      "model": "deepgram-stt",
+      "p": 0.0
+     }
+    ],
+    "ms": 4466
+   },
+   "retrieval": {
+    "top_score": 0.614,
+    "cutoff": 0.55,
+    "query": "How to resolve a customs hold: Entry under exam",
+    "ms": 19,
+    "passages": [
+     {
+      "section": "Playbook \u00a74.2, customs exam",
+      "score": 0.614
+     },
+     {
+      "section": "Playbook \u00a74.1, customs hold triage",
+      "score": 0.545
+     },
+     {
+      "section": "Playbook \u00a77.1, demurrage",
+      "score": 0.52
+     },
+     {
+      "section": "Playbook \u00a74.5, held cargo",
+      "score": 0.511
+     }
+    ]
+   },
+   "path": [
+    "guard",
+    "retrieve",
+    "draft",
+    "check_citations"
+   ],
+   "guard": [
+    {
+     "rule": "type \"other\" is never auto-suggested",
+     "passed": true
+    },
+    {
+     "rule": "sources agree on status",
+     "passed": true,
+     "detail": "customs broker: hold"
+    },
+    {
+     "rule": "kill switch off for this type",
+     "passed": true,
+     "detail": null
+    }
+   ]
+  },
+  "EXC-2": {
+   "exception_id": "EXC-2",
+   "status": "abstained",
+   "reason": "Sources disagree (customs broker: hold, carrier: released); not choosing between them",
+   "field_in_doubt": "customs status",
+   "actions": [],
+   "retrieval": null,
+   "path": [
+    "guard"
+   ],
+   "guard": [
+    {
+     "rule": "type \"other\" is never auto-suggested",
+     "passed": true
+    },
+    {
+     "rule": "sources agree on status",
+     "passed": false,
+     "detail": "customs broker: hold, carrier: released"
+    },
+    {
+     "rule": "kill switch off for this type",
+     "passed": true,
+     "detail": null
+    }
+   ]
+  },
+  "EXC-3": {
+   "exception_id": "EXC-3",
+   "status": "suggested",
+   "actions": [
+    {
+     "action": "In the Booking page, confirm the rebooking for the 2 rolled containers on the next sailing (+7 days) before the rebooking hold expires, so the space is not released.",
+     "citation": {
+      "section": "Playbook \u00a75.1, rolled container",
+      "quote": "confirm the rebooking within the hold period or the space is released"
+     },
+     "portal_page": "Booking"
+    },
+    {
+     "action": "If the +7 day arrival breaks the must-arrive-by date, compare the cost of an alternative carrier or a split shipment for the rolled containers on the Booking page.",
+     "citation": {
+      "section": "Playbook \u00a75.1, rolled container",
+      "quote": "compare the cost of an alternative carrier or a split shipment"
+     },
+     "portal_page": "Booking"
+    },
+    {
+     "action": "On the Delivery page, replan downstream delivery separately for the 2 containers that sailed and the 2 that rolled, and tell the consignee warehouse which containers arrive when.",
+     "citation": {
+      "section": "Playbook \u00a75.3, split shipment",
+      "quote": "Replan downstream delivery for each part separately"
+     },
+     "portal_page": "Delivery"
+    }
+   ],
+   "dropped_uncited": 0,
+   "checks": [
+    {
+     "action": "In the Booking page, confirm the rebooking for the 2 rolled containers on the next sailing (+7 days) before the rebooking hold expires, so the space is not released.",
+     "source": 1,
+     "quote_found": true
+    },
+    {
+     "action": "If the +7 day arrival breaks the must-arrive-by date, compare the cost of an alternative carrier or a split shipment for the rolled containers on the Booking page.",
+     "source": 1,
+     "quote_found": true
+    },
+    {
+     "action": "On the Delivery page, replan downstream delivery separately for the 2 containers that sailed and the 2 that rolled, and tell the consignee warehouse which containers arrive when.",
+     "source": 3,
+     "quote_found": true
+    }
+   ],
+   "routing": {
+    "model": "sonnet-5.5",
+    "confidence": 1.0,
+    "reason": "a second open exception on the shipment",
+    "features": {
+     "task": "reason",
+     "modality": "text",
+     "cost": 2,
+     "latency": 1,
+     "quality": 2,
+     "input_k": 1
+    },
+    "alternatives": [
+     {
+      "model": "sonnet-5.5",
+      "p": 1.0
+     },
+     {
+      "model": "gpt-5.6-sol",
+      "p": 0.0
+     },
+     {
+      "model": "deepgram-stt",
+      "p": 0.0
+     }
+    ],
+    "ms": 2663
+   },
+   "retrieval": {
+    "top_score": 0.592,
+    "cutoff": 0.55,
+    "query": "How to resolve a missed vessel: 2 of 4 containers rolled, next sailing +7 days",
+    "ms": 13,
+    "passages": [
+     {
+      "section": "Playbook \u00a75.1, rolled container",
+      "score": 0.592
+     },
+     {
+      "section": "Playbook \u00a75.2, missed cut off",
+      "score": 0.576
+     },
+     {
+      "section": "Playbook \u00a75.3, split shipment",
+      "score": 0.555
+     },
+     {
+      "section": "Playbook \u00a74.5, held cargo",
+      "score": 0.507
+     }
+    ]
+   },
+   "path": [
+    "guard",
+    "retrieve",
+    "draft",
+    "check_citations"
+   ],
+   "guard": [
+    {
+     "rule": "type \"other\" is never auto-suggested",
+     "passed": true
+    },
+    {
+     "rule": "sources agree on status",
+     "passed": true,
+     "detail": "carrier EDI: rolled"
+    },
+    {
+     "rule": "kill switch off for this type",
+     "passed": true,
+     "detail": null
+    }
+   ]
+  },
+  "EXC-4": {
+   "exception_id": "EXC-4",
+   "status": "suggested",
+   "actions": [
+    {
+     "action": "On the Booking page, compare the next sailing on the same service with an alternative routing for all three containers on SHP-20431, before the next vessel cut off.",
+     "citation": {
+      "section": "Playbook \u00a75.2, missed cut off",
+      "quote": "Each option shows the new arrival date and any cost difference before the customer selects it."
+     },
+     "portal_page": "Booking"
+    }
+   ],
+   "dropped_uncited": 0,
+   "checks": [
+    {
+     "action": "On the Booking page, compare the next sailing on the same service with an alternative routing for all three containers on SHP-20431, before the next vessel cut off.",
+     "source": 1,
+     "quote_found": true
+    }
+   ],
+   "routing": {
+    "model": "haiku-5.5",
+    "confidence": 1.0,
+    "reason": "routine: one exception, time to spare",
+    "features": {
+     "task": "summarize",
+     "modality": "text",
+     "cost": 2,
+     "latency": 2,
+     "quality": 1,
+     "input_k": 1
+    },
+    "alternatives": [
+     {
+      "model": "haiku-5.5",
+      "p": 1.0
+     },
+     {
+      "model": "sonnet-5.5",
+      "p": 0.0
+     },
+     {
+      "model": "gemini-3.6-flash",
+      "p": 0.0
+     }
+    ],
+    "ms": 2898
+   },
+   "retrieval": {
+    "top_score": 0.687,
+    "cutoff": 0.55,
+    "query": "How to resolve a missed vessel: Cut off missed",
+    "ms": 32,
+    "passages": [
+     {
+      "section": "Playbook \u00a75.2, missed cut off",
+      "score": 0.687
+     },
+     {
+      "section": "Playbook \u00a75.1, rolled container",
+      "score": 0.498
+     },
+     {
+      "section": "Playbook \u00a75.3, split shipment",
+      "score": 0.486
+     },
+     {
+      "section": "Playbook \u00a74.5, held cargo",
+      "score": 0.478
+     }
+    ]
+   },
+   "path": [
+    "guard",
+    "retrieve",
+    "draft",
+    "check_citations"
+   ],
+   "guard": [
+    {
+     "rule": "type \"other\" is never auto-suggested",
+     "passed": true
+    },
+    {
+     "rule": "sources agree on status",
+     "passed": true,
+     "detail": "carrier EDI: cut off missed"
+    },
+    {
+     "rule": "kill switch off for this type",
+     "passed": true,
+     "detail": null
+    }
+   ]
+  },
+  "EXC-5": {
+   "exception_id": "EXC-5",
+   "status": "suggested",
+   "actions": [
+    {
+     "action": "Request a corrected packing list from the supplier for SHP-20402, since the packing list weight does not match the booking or commercial invoice. Do this on the Documents page.",
+     "citation": {
+      "section": "Playbook \u00a76.1, packing list mismatch",
+      "quote": "request a corrected packing list from the supplier"
+     },
+     "portal_page": "Documents"
+    },
+    {
+     "action": "Once the supplier sends the corrected packing list, review it on the Documents page and approve it, since the consignee approves the corrected version.",
+     "citation": {
+      "section": "Playbook \u00a76.1, packing list mismatch",
+      "quote": "the consignee approves the corrected version"
+     },
+     "portal_page": "Documents"
+    }
+   ],
+   "dropped_uncited": 0,
+   "checks": [
+    {
+     "action": "Request a corrected packing list from the supplier for SHP-20402, since the packing list weight does not match the booking or commercial invoice. Do this on the Documents page.",
+     "source": 1,
+     "quote_found": true
+    },
+    {
+     "action": "Once the supplier sends the corrected packing list, review it on the Documents page and approve it, since the consignee approves the corrected version.",
+     "source": 1,
+     "quote_found": true
+    }
+   ],
+   "routing": {
+    "model": "haiku-5.5",
+    "confidence": 1.0,
+    "reason": "routine: one exception, time to spare",
+    "features": {
+     "task": "summarize",
+     "modality": "text",
+     "cost": 2,
+     "latency": 2,
+     "quality": 1,
+     "input_k": 1
+    },
+    "alternatives": [
+     {
+      "model": "haiku-5.5",
+      "p": 1.0
+     },
+     {
+      "model": "sonnet-5.5",
+      "p": 0.0
+     },
+     {
+      "model": "gemini-3.6-flash",
+      "p": 0.0
+     }
+    ],
+    "ms": 2621
+   },
+   "retrieval": {
+    "top_score": 0.685,
+    "cutoff": 0.55,
+    "query": "How to resolve a document error: Packing list weight mismatch",
+    "ms": 13,
+    "passages": [
+     {
+      "section": "Playbook \u00a76.1, packing list mismatch",
+      "score": 0.685
+     },
+     {
+      "section": "Playbook \u00a76.2, commercial invoice value mismatch",
+      "score": 0.547
+     }
+    ]
+   },
+   "path": [
+    "guard",
+    "retrieve",
+    "draft",
+    "check_citations"
+   ],
+   "guard": [
+    {
+     "rule": "type \"other\" is never auto-suggested",
+     "passed": true
+    },
+    {
+     "rule": "sources agree on status",
+     "passed": true,
+     "detail": "doc check: error"
+    },
+    {
+     "rule": "kill switch off for this type",
+     "passed": true,
+     "detail": null
+    }
+   ]
+  },
+  "EXC-7": {
+   "exception_id": "EXC-7",
+   "status": "abstained",
+   "reason": "Exception type \"other\" is never auto-suggested",
+   "field_in_doubt": "exception type",
+   "actions": [],
+   "retrieval": null,
+   "path": [
+    "guard"
+   ],
+   "guard": [
+    {
+     "rule": "type \"other\" is never auto-suggested",
+     "passed": false
+    },
+    {
+     "rule": "sources agree on status",
+     "passed": true,
+     "detail": "ops note: open"
+    },
+    {
+     "rule": "kill switch off for this type",
+     "passed": true,
+     "detail": null
+    }
+   ]
+  },
+  "EXC-6": {
+   "exception_id": "EXC-6",
+   "status": "abstained",
+   "reason": "Retrieval below confidence cutoff",
+   "field_in_doubt": "action",
+   "actions": [],
+   "retrieval": {
+    "top_score": 0.482,
+    "cutoff": 0.55,
+    "query": "How to resolve a document error: Customs declaration, HS code missing",
+    "ms": 17,
+    "passages": [
+     {
+      "section": "Playbook \u00a74.2, customs exam",
+      "score": 0.482
+     },
+     {
+      "section": "Playbook \u00a76.2, commercial invoice value mismatch",
+      "score": 0.468
+     },
+     {
+      "section": "Playbook \u00a76.1, packing list mismatch",
+      "score": 0.454
+     }
+    ]
+   },
+   "path": [
+    "guard",
+    "retrieve"
+   ],
+   "guard": [
+    {
+     "rule": "type \"other\" is never auto-suggested",
+     "passed": true
+    },
+    {
+     "rule": "sources agree on status",
+     "passed": true,
+     "detail": "doc check: error"
+    },
+    {
+     "rule": "kill switch off for this type",
+     "passed": true,
+     "detail": null
+    }
+   ]
+  }
+ },
+ "eval_retrieval": {
+  "rows": [
+   {
+    "set": "policy",
+    "question": "How many free days do we get at West Coast ports before demurrage?",
+    "gold": "4 calendar days from discharge",
+    "rank": 1,
+    "relevant": 1,
+    "top": "demurrage-policy.md",
+    "top_score": 0.669,
+    "ms": 11
+   },
+   {
+    "set": "policy",
+    "question": "What does demurrage cost in the first few days after free time?",
+    "gold": "150 USD per container per day",
+    "rank": 1,
+    "relevant": 1,
+    "top": "demurrage-policy.md",
+    "top_score": 0.676,
+    "ms": 9
+   },
+   {
+    "set": "policy",
+    "question": "What is the daily demurrage rate after a container has been late a week?",
+    "gold": "300 USD per day from day 5",
+    "rank": 1,
+    "relevant": 1,
+    "top": "demurrage-policy.md",
+    "top_score": 0.687,
+    "ms": 9
+   },
+   {
+    "set": "policy",
+    "question": "What is the difference between demurrage and detention?",
+    "gold": "Detention is charged when the container is outside",
+    "rank": 1,
+    "relevant": 1,
+    "top": "demurrage-policy.md",
+    "top_score": 0.636,
+    "ms": 7
+   },
+   {
+    "set": "policy",
+    "question": "When do we warn customers that free time is running out?",
+    "gold": "1 day from the end of its free time",
+    "rank": 3,
+    "relevant": 1,
+    "top": "7.1-demurrage-while-held.md",
+    "top_score": 0.475,
+    "ms": 7
+   },
+   {
+    "set": "policy",
+    "question": "How long does a customer have to dispute a demurrage invoice?",
+    "gold": "within 30 days of the invoice date",
+    "rank": 1,
+    "relevant": 1,
+    "top": "demurrage-policy.md",
+    "top_score": 0.558,
+    "ms": 7
+   },
+   {
+    "set": "policy",
+    "question": "What causes CBP to hold a container?",
+    "gold": "Common causes",
+    "rank": 1,
+    "relevant": 1,
+    "top": "customs-holds.md",
+    "top_score": 0.59,
+    "ms": 6
+   },
+   {
+    "set": "policy",
+    "question": "When is the ISF filing due?",
+    "gold": "24 hours before vessel loading",
+    "rank": 2,
+    "relevant": 1,
+    "top": "4.3-isf-query.md",
+    "top_score": 0.627,
+    "ms": 5
+   },
+   {
+    "set": "policy",
+    "question": "How much delay does a customs exam add?",
+    "gold": "3 to 10 days",
+    "rank": 1,
+    "relevant": 1,
+    "top": "customs-holds.md",
+    "top_score": 0.647,
+    "ms": 6
+   },
+   {
+    "set": "policy",
+    "question": "Who pays for a CBP exam?",
+    "gold": "paid by the importer of record",
+    "rank": 2,
+    "relevant": 1,
+    "top": "4.2-customs-exam.md",
+    "top_score": 0.478,
+    "ms": 7
+   },
+   {
+    "set": "policy",
+    "question": "How fast must the broker reply to CBP?",
+    "gold": "within 2 business days",
+    "rank": 1,
+    "relevant": 1,
+    "top": "customs-holds.md",
+    "top_score": 0.519,
+    "ms": 7
+   },
+   {
+    "set": "policy",
+    "question": "Does demurrage stop during a customs exam?",
+    "gold": "does not pause demurrage",
+    "rank": 1,
+    "relevant": 2,
+    "top": "7.1-demurrage-while-held.md",
+    "top_score": 0.67,
+    "ms": 8
+   },
+   {
+    "set": "policy",
+    "question": "How quickly must we tell a customer about a long delay?",
+    "gold": "within 4 business hours",
+    "rank": 1,
+    "relevant": 1,
+    "top": "exception-sop.md",
+    "top_score": 0.551,
+    "ms": 6
+   },
+   {
+    "set": "policy",
+    "question": "What do we offer when the carrier rolls a booking?",
+    "gold": "offer the next sailing",
+    "rank": 1,
+    "relevant": 1,
+    "top": "exception-sop.md",
+    "top_score": 0.531,
+    "ms": 6
+   },
+   {
+    "set": "policy",
+    "question": "What is the deadline to file a damage claim with the carrier?",
+    "gold": "open a claim with the carrier within 3 days",
+    "rank": 1,
+    "relevant": 1,
+    "top": "exception-sop.md",
+    "top_score": 0.573,
+    "ms": 7
+   },
+   {
+    "set": "policy",
+    "question": "Can the system issue a customer credit without a person?",
+    "gold": "An operator must approve any customer credit above 500 USD",
+    "rank": 1,
+    "relevant": 1,
+    "top": "exception-sop.md",
+    "top_score": 0.398,
+    "ms": 6
+   },
+   {
+    "set": "playbook",
+    "question": "Customs wants more paperwork during an inspection, how fast do we send it?",
+    "gold": "within one business day",
+    "rank": 2,
+    "relevant": 1,
+    "top": "exception-sop.md",
+    "top_score": 0.594,
+    "ms": 7
+   },
+   {
+    "set": "playbook",
+    "question": "Who covers the cost when customs inspects the goods?",
+    "gold": "Exam fees are billed to the importer of record",
+    "rank": 1,
+    "relevant": 1,
+    "top": "4.2-customs-exam.md",
+    "top_score": 0.526,
+    "ms": 6
+   },
+   {
+    "set": "playbook",
+    "question": "What happens if the security filing is late?",
+    "gold": "5,000 USD per filing",
+    "rank": 1,
+    "relevant": 1,
+    "top": "4.3-isf-query.md",
+    "top_score": 0.516,
+    "ms": 6
+   },
+   {
+    "set": "playbook",
+    "question": "Should the truck still come for containers that are stuck in customs?",
+    "gold": "Release the trucking appointment",
+    "rank": 1,
+    "relevant": 1,
+    "top": "4.5-held-cargo-delivery.md",
+    "top_score": 0.582,
+    "ms": 7
+   },
+   {
+    "set": "playbook",
+    "question": "The carrier bumped our boxes to a later ship, what must we do and by when?",
+    "gold": "confirm the rebooking within the hold period",
+    "rank": 2,
+    "relevant": 1,
+    "top": "exception-sop.md",
+    "top_score": 0.539,
+    "ms": 7
+   },
+   {
+    "set": "playbook",
+    "question": "We missed the vessel deadline, what choices do we have?",
+    "gold": "next sailing on the same service and an alternative routing",
+    "rank": 1,
+    "relevant": 1,
+    "top": "5.2-missed-cut-off.md",
+    "top_score": 0.534,
+    "ms": 6
+   },
+   {
+    "set": "playbook",
+    "question": "Half the order is on a later boat, how do we plan delivery?",
+    "gold": "Replan downstream delivery for each part separately",
+    "rank": 1,
+    "relevant": 1,
+    "top": "5.3-split-shipment.md",
+    "top_score": 0.556,
+    "ms": 6
+   },
+   {
+    "set": "playbook",
+    "question": "The weight on the packing list is wrong, who fixes it?",
+    "gold": "request a corrected packing list from the supplier",
+    "rank": 1,
+    "relevant": 1,
+    "top": "6.1-packing-list-mismatch.md",
+    "top_score": 0.643,
+    "ms": 7
+   },
+   {
+    "set": "playbook",
+    "question": "Declared value differs from the invoice, what is needed before release?",
+    "gold": "the broker must amend the entry before release",
+    "rank": 1,
+    "relevant": 1,
+    "top": "6.2-invoice-value-mismatch.md",
+    "top_score": 0.582,
+    "ms": 7
+   },
+   {
+    "set": "playbook",
+    "question": "Does the terminal clock stop while customs inspects a container?",
+    "gold": "does not pause demurrage unless the carrier agrees in writing",
+    "rank": 1,
+    "relevant": 2,
+    "top": "customs-holds.md",
+    "top_score": 0.627,
+    "ms": 6
+   },
+   {
+    "set": "playbook",
+    "question": "We kept the empty box too long after unloading, what is that fee?",
+    "gold": "Detention is charged when a container is kept outside",
+    "rank": 1,
+    "relevant": 1,
+    "top": "7.2-detention.md",
+    "top_score": 0.502,
+    "ms": 7
+   }
+  ],
+  "summary": {
+   "n": 27,
+   "k": 3,
+   "recall": 1.0,
+   "precision": 0.358,
+   "mrr": 0.901
+  }
+ },
+ "eval_explain": {
+  "rows": [
+   {
+    "id": "EXC-1",
+    "shipment": "SHP-20417",
+    "type": "customs_hold",
+    "expected": "suggested",
+    "got": "suggested",
+    "status_ok": true,
+    "expected_section": "\u00a74.2",
+    "top_section": "Playbook \u00a74.2, customs exam",
+    "section_ok": true,
+    "quotes_ok": 3,
+    "quotes": 3,
+    "model": "sonnet-5.5",
+    "reason": null,
+    "ms": 2685
+   },
+   {
+    "id": "EXC-2",
+    "shipment": "SHP-20388",
+    "type": "customs_hold",
+    "expected": "abstained",
+    "got": "abstained",
+    "status_ok": true,
+    "expected_section": null,
+    "top_section": null,
+    "section_ok": null,
+    "quotes_ok": 0,
+    "quotes": 0,
+    "model": null,
+    "reason": "Sources disagree (customs broker: hold, carrier: released); not choosing between them",
+    "ms": 3
+   },
+   {
+    "id": "EXC-3",
+    "shipment": "SHP-20417",
+    "type": "missed_vessel",
+    "expected": "suggested",
+    "got": "suggested",
+    "status_ok": true,
+    "expected_section": "\u00a75.1",
+    "top_section": "Playbook \u00a75.1, rolled container",
+    "section_ok": true,
+    "quotes_ok": 3,
+    "quotes": 3,
+    "model": "sonnet-5.5",
+    "reason": null,
+    "ms": 9062
+   },
+   {
+    "id": "EXC-4",
+    "shipment": "SHP-20431",
+    "type": "missed_vessel",
+    "expected": "suggested",
+    "got": "suggested",
+    "status_ok": true,
+    "expected_section": "\u00a75.2",
+    "top_section": "Playbook \u00a75.2, missed cut off",
+    "section_ok": true,
+    "quotes_ok": 1,
+    "quotes": 1,
+    "model": "haiku-5.5",
+    "reason": null,
+    "ms": 2853
+   },
+   {
+    "id": "EXC-5",
+    "shipment": "SHP-20402",
+    "type": "document_error",
+    "expected": "suggested",
+    "got": "suggested",
+    "status_ok": true,
+    "expected_section": "\u00a76.1",
+    "top_section": "Playbook \u00a76.1, packing list mismatch",
+    "section_ok": true,
+    "quotes_ok": 2,
+    "quotes": 2,
+    "model": "haiku-5.5",
+    "reason": null,
+    "ms": 2525
+   },
+   {
+    "id": "EXC-6",
+    "shipment": "SHP-20415",
+    "type": "document_error",
+    "expected": "abstained",
+    "got": "abstained",
+    "status_ok": true,
+    "expected_section": null,
+    "top_section": "Playbook \u00a74.2, customs exam",
+    "section_ok": null,
+    "quotes_ok": 0,
+    "quotes": 0,
+    "model": null,
+    "reason": "Retrieval below confidence cutoff",
+    "ms": 21
+   },
+   {
+    "id": "EXC-7",
+    "shipment": "SHP-20398",
+    "type": "other",
+    "expected": "abstained",
+    "got": "abstained",
+    "status_ok": true,
+    "expected_section": null,
+    "top_section": null,
+    "section_ok": null,
+    "quotes_ok": 0,
+    "quotes": 0,
+    "model": null,
+    "reason": "Exception type \"other\" is never auto-suggested",
+    "ms": 2
+   }
+  ],
+  "summary": {
+   "n": 7,
+   "outcome_accuracy": 1.0,
+   "abstention_recall": 1.0,
+   "top_section_hit": 1.0,
+   "citation_pass": 1.0,
+   "mean_ms": 2450
+  }
+ }
+}
