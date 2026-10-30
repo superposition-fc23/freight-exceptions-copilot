@@ -135,7 +135,7 @@ function renderBoard() {
 }
 
 function steps(active) {
-  const names = ['Retrieve playbook passages', 'Route to a model', 'Write actions', 'Check every quote'];
+  const names = ['Guard: check sources and type', 'Retrieve playbook passages', 'Route to a model and write actions', 'Check every quote'];
   return names.map((n, i) => `<div class="step ${i < active ? 'done' : i === active ? 'on' : ''}">${i < active ? '✓' : i === active ? '<span class="spin"></span>' : '·'} ${n}</div>`).join('');
 }
 
@@ -157,17 +157,23 @@ async function open(id) {
   try {
     const r = await api('/explain', {exception_id: id});
     clearInterval(tick);
-    if (selected === id) $('panel').innerHTML = head + result(r, Math.round(performance.now() - t0));
+    if (selected === id) $('panel').innerHTML = head + result(r, Math.round(performance.now() - t0), e);
   } catch (err) {
     clearInterval(tick);
     $('panel').innerHTML = head + `<div class="banner stop">Could not reach the API: ${esc(err.message)}</div>`;
   }
 }
 
-function result(r, totalMs) {
+function result(r, totalMs, e) {
   let body;
   if (r.status === 'abstained') {
     body = `<div class="bg-warn-soft text-warn rounded px-3 py-2 text-sm mb-2"><b>No suggestion.</b> ${esc(r.reason)}. Field in doubt: <b>${esc(r.field_in_doubt)}</b>. Routed to ops; you do not need to contact anyone.</div>`;
+    if (conflict(e)) {
+      body += `<div class="grid grid-cols-2 gap-2 mb-2">` + e.sources.map(s => `<div class="border border-rule rounded p-2">
+        <div class="font-mono text-xs text-fg-3 uppercase">${esc(s.system)}</div><div class="text-sm font-semibold">${esc(s.status)}</div>
+        <div class="text-xs text-fg-2">${esc(s.note || '')}</div><div class="font-mono text-xs text-fg-3">event ${s.event_at.slice(11, 16)}</div></div>`).join('') +
+        `</div><p class="text-xs text-fg-3">The later event is not treated as the winner: a carrier release can precede a customs hold being lifted.</p>`;
+    }
   } else {
     body = `<div class="font-mono text-xs uppercase tracking-wider text-fg-3 mb-2">Suggested actions</div><ol class="pl-5 m-0">` +
       r.actions.map(a => `<li class="mb-3"><div class="text-sm font-semibold">${esc(a.action)}</div>
@@ -180,6 +186,16 @@ function result(r, totalMs) {
 function trace(r, totalMs) {
   const ret = r.retrieval, ro = r.routing;
   let html = `<div class="trace border-t border-rule mt-3 pt-1"><h6>How this was decided &middot; ${totalMs} ms</h6>`;
+  if (r.path) {
+    const all = ['guard', 'retrieve', 'draft', 'check_citations'];
+    html += `<div class="flex flex-wrap gap-1 items-center font-mono text-xs">` + all.map(n =>
+      `<span class="px-2 py-0.5 rounded border ${r.path.includes(n) ? (n === r.path.at(-1) && r.status === 'abstained' ? 'border-warn text-warn bg-warn-soft' : 'border-ok text-ok bg-ok-soft') : 'border-rule text-fg-3'}">${n}</span>`
+    ).join('<span class="text-fg-3">&rarr;</span>') + (r.status === 'abstained' ? '<span class="text-fg-3">&rarr;</span><span class="px-2 py-0.5 rounded border border-warn text-warn">abstain</span>' : '') + '</div>';
+  }
+  if (r.guard) {
+    html += `<h6>Guard &middot; deterministic, before any model call</h6>` +
+      r.guard.map(g => `<div class="text-xs ${g.passed ? 'text-ok' : 'text-stop'}">${g.passed ? '✓' : '✗'} ${esc(g.rule)}${g.detail ? ` <span class="text-fg-3">(${esc(g.detail)})</span>` : ''}</div>`).join('');
+  }
   if (ro) {
     html += `<h6>Router</h6><div class="text-sm"><b class="font-mono">${ro.model}</b> <span class="text-fg-3">p=${ro.confidence} &middot; ${ro.ms} ms</span></div>
       <div class="text-xs text-fg-2">${esc(ro.reason)}</div>
